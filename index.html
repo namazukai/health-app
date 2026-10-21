@@ -2041,25 +2041,25 @@
           </div>
         </div>
 
-        <!-- 娘さん（2人・複数人）専用プライベートルーム案内 -->
-        <div style="background: #fdf4ff; border: 1px solid #f0abfc; border-radius: 10px; padding: 10px 12px; margin-bottom: 14px;">
-          <div style="font-weight: 700; font-size: 0.8rem; color: #86198f; margin-bottom: 4px;">🔒 娘さん専用プライベートルーム（家族とデータを分ける）</div>
-          <div style="font-size: 0.72rem; color: #701a75; line-height: 1.45; margin-bottom: 8px;">
-            ご両親の部屋（<code>family-sync</code>）とも、姉妹同士とも切り離された **「完全個別のプライベート部屋」** をワンタップで作れます！お互いのデータが混ざることは一切ありません。
+        <!-- 個人・個別プライベートルーム案内（誰にでも自然な汎用デザイン） -->
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px 12px; margin-bottom: 14px;">
+          <div style="font-weight: 700; font-size: 0.8rem; color: #334155; margin-bottom: 4px;">🔒 データを共有せず個別に分けたい場合</div>
+          <div style="font-size: 0.72rem; color: #64748b; line-height: 1.45; margin-bottom: 8px;">
+            家族や同居人同士でもデータを分けたい場合は、合言葉をそれぞれ別々の言葉（例: <code>自分の名前</code> など）にするだけで完全に独立した個別部屋になります。
           </div>
           <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 6px;">
-            <button type="button" class="btn" style="padding: 5px 10px; font-size: 0.72rem; background: #fae8ff; color: #86198f; border: 1px solid #d8b4fe; font-weight: 600;" onclick="setDaughterRoom(1)">
-              👧 長女専用ルーム (daughter1)
+            <button type="button" class="btn" style="padding: 5px 10px; font-size: 0.72rem; background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; font-weight: 600;" onclick="setQuickRoom('private-room-1')">
+              🔒 個別ルーム ①
             </button>
-            <button type="button" class="btn" style="padding: 5px 10px; font-size: 0.72rem; background: #fdf2f8; color: #9d174d; border: 1px solid #fbcfe8; font-weight: 600;" onclick="setDaughterRoom(2)">
-              👧 次女専用ルーム (daughter2)
+            <button type="button" class="btn" style="padding: 5px 10px; font-size: 0.72rem; background: #fdf2f8; color: #9d174d; border: 1px solid #fbcfe8; font-weight: 600;" onclick="setQuickRoom('private-room-2')">
+              🔒 個別ルーム ②
             </button>
             <button type="button" class="btn" style="padding: 5px 10px; font-size: 0.72rem; background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; font-weight: 600;" onclick="setCustomPrivateRoom()">
-              ✏️ 好きな名前で専用ルーム作成
+              ✏️ 好きな合言葉で個別作成
             </button>
           </div>
-          <div style="font-size: 0.68rem; color: #86198f;">
-            ※ボタンを押して下の「接続＆同期スタート」を押すだけで完了します。
+          <div style="font-size: 0.68rem; color: #64748b;">
+            ※家族で同じカルテを共有する場合は共通の合言葉（例: <code>family-sync</code>）をご使用ください。
           </div>
         </div>
 
@@ -3403,27 +3403,25 @@
       renderWeightChart();
     }
 
-    // --- 🔒 娘さん（長女・次女・個別）専用プライベートルーム切替 ---
-    function setDaughterRoom(num) {
+    // --- 🔒 個別プライベートルーム切替（誰にでも自然な汎用設計） ---
+    function setQuickRoom(roomCode) {
       const roomInput = document.getElementById('syncRoomInput');
-      const code = `daughter${num}-private`;
-      if (roomInput) roomInput.value = code;
-      const label = num === 1 ? '長女' : (num === 2 ? '次女' : `${num}番目`);
-      alert(`合言葉を「${code}」にセットしました！\n下の「接続＆同期スタート」を押すと、ご両親とも姉妹とも完全に切り離された【${label}さん専用ルーム】になります。`);
+      if (roomInput) roomInput.value = roomCode;
+      alert(`合言葉を「${roomCode}」にセットしました！\n下の「接続＆同期スタート」を押すと、他の人と切り離された【個別ルーム】になります。`);
     }
 
     function setCustomPrivateRoom() {
-      const name = prompt('お名前またはニックネームを半角英数字で入力してください（例: yuki, sakura）:');
+      const name = prompt('お名前またはお好みの英数字を入力してください（例: yuki, my-room）:');
       if (!name) return;
       const clean = name.trim().toLowerCase().replace(/[^a-z0-9_-]/g, '');
       if (!clean) {
         alert('半角英数字で入力してください');
         return;
       }
-      const code = `${clean}-private`;
+      const code = `${clean}-room`;
       const roomInput = document.getElementById('syncRoomInput');
       if (roomInput) roomInput.value = code;
-      alert(`合言葉を「${code}」にセットしました！\n下の「接続＆同期スタート」を押すと、ご家族にデータが見えない【あなた専用ルーム】になります。`);
+      alert(`合言葉を「${code}」にセットしました！\n下の「接続＆同期スタート」を押すと、あなただけの【専用ルーム】になります。`);
     }
 
     // --- 🩺 血圧データの描画 & 判定 ---
