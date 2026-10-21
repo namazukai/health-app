@@ -1490,22 +1490,25 @@
 
           <div class="bp-stats-grid">
             <div class="bp-stat-box">
-              <div class="bp-stat-label" style="color: #ef4444;">最高血圧 (SYS)</div>
+              <div class="bp-stat-label" style="color: #ef4444;">最新 最高 (SYS)</div>
               <div class="bp-stat-number" id="bpSysDisplay" style="color: #ef4444;">--</div>
               <div class="bp-stat-unit">mmHg</div>
             </div>
             <div class="bp-stat-box">
-              <div class="bp-stat-label" style="color: #3b82f6;">最低血圧 (DIA)</div>
+              <div class="bp-stat-label" style="color: #3b82f6;">最新 最低 (DIA)</div>
               <div class="bp-stat-number" id="bpDiaDisplay" style="color: #3b82f6;">--</div>
               <div class="bp-stat-unit">mmHg</div>
             </div>
             <div class="bp-stat-box">
-              <div class="bp-stat-label" style="color: #10b981;">脈拍 (PULSE)</div>
+              <div class="bp-stat-label" style="color: #10b981;">最新 脈拍 (PULSE)</div>
               <div class="bp-stat-number" id="bpPulseDisplay" style="color: #10b981;">--</div>
               <div class="bp-stat-unit">bpm</div>
             </div>
           </div>
         </div>
+
+        <!-- 本日の血圧測定履歴リスト (1日何回でもOK) -->
+        <div id="bpHistoryList" style="margin-top: 10px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 6px;"></div>
 
         <div style="font-size: 0.72rem; color: var(--text-muted); margin-bottom: 6px; display: flex; justify-content: space-between;">
           <span>過去7日間の推移（基準値: 135/85 mmHg未満）</span>
@@ -1544,7 +1547,7 @@
 
         <div class="weight-row">
           <div class="weight-input-group">
-            <span style="font-size: 0.8rem; font-weight: 700;">今日の体重:</span>
+            <span style="font-size: 0.8rem; font-weight: 700;">最新体重:</span>
             <input type="number" step="0.1" class="weight-input" id="weightInput" placeholder="--.-" onchange="saveWeight()">
             <span style="font-size: 0.8rem;">kg</span>
           </div>
@@ -1554,6 +1557,9 @@
             <span style="font-size: 0.8rem;">%</span>
           </div>
         </div>
+
+        <!-- 本日の体重測定履歴リスト (1日何回でもOK) -->
+        <div id="weightHistoryList" style="margin-top: 10px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 6px;"></div>
 
         <div style="font-size: 0.72rem; color: var(--text-muted); margin-bottom: 4px; display: flex; justify-content: space-between;">
           <span id="weightChartLabel">過去7日間の推移</span>
@@ -1603,9 +1609,24 @@
         </div>
 
         <!-- 手動確認・修正フォーム -->
-        <div class="form-group">
-          <label class="form-label">測定日付</label>
-          <input type="date" class="form-control" id="weightFormDate">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+          <div class="form-group">
+            <label class="form-label">測定日付</label>
+            <input type="date" class="form-control" id="weightFormDate">
+          </div>
+          <div class="form-group">
+            <label class="form-label">測定時刻・タイミング</label>
+            <div style="display: flex; gap: 4px;">
+              <input type="time" class="form-control" id="weightFormTime" style="flex: 1;">
+              <select class="form-control" id="weightFormTiming" style="flex: 1.2; font-size: 0.72rem;">
+                <option value="朝 (起床後)">🌅 朝(起床後)</option>
+                <option value="昼">☀️ 昼</option>
+                <option value="晩 (就寝前)">🌙 晩(就寝前)</option>
+                <option value="入浴後">♨️ 入浴後</option>
+                <option value="その他">その他</option>
+              </select>
+            </div>
+          </div>
         </div>
 
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
@@ -1621,7 +1642,7 @@
 
         <div class="btn-row">
           <button class="btn btn-secondary" onclick="closeWeightModal()">閉じる</button>
-          <button class="btn btn-primary" onclick="saveWeightFromModal()">記録する</button>
+          <button class="btn btn-primary" onclick="saveWeightFromModal()">この測定値をカルテに追加</button>
         </div>
       </div>
     </div>
@@ -1668,8 +1689,16 @@
             <input type="date" class="form-control" id="bpFormDate">
           </div>
           <div class="form-group">
-            <label class="form-label">測定時刻</label>
-            <input type="time" class="form-control" id="bpFormTime">
+            <label class="form-label">測定時刻・タイミング</label>
+            <div style="display: flex; gap: 4px;">
+              <input type="time" class="form-control" id="bpFormTime" style="flex: 1;">
+              <select class="form-control" id="bpFormTiming" style="flex: 1.2; font-size: 0.72rem;">
+                <option value="朝">🌅 朝(起床後)</option>
+                <option value="昼">☀️ 昼</option>
+                <option value="晩">🌙 晩(就寝前)</option>
+                <option value="その他">その他</option>
+              </select>
+            </div>
           </div>
         </div>
 
@@ -1690,7 +1719,7 @@
 
         <div class="btn-row">
           <button class="btn btn-secondary" onclick="closeBpModal()">閉じる</button>
-          <button class="btn btn-danger" onclick="saveBpRecord()">記録する</button>
+          <button class="btn btn-danger" onclick="saveBpRecord()">この測定値をカルテに追加</button>
         </div>
       </div>
     </div>
@@ -2009,6 +2038,28 @@
           <input type="text" class="form-control" id="syncRoomInput" placeholder="例: tanaka-family-77">
           <div style="font-size: 0.72rem; color: #64748b; margin-top: 3px;">
             ※ご家族で共通の合言葉を決めてください。同じ合言葉を入力した端末同士でデータが瞬時に共有されます。
+          </div>
+        </div>
+
+        <!-- 娘さん（2人・複数人）専用プライベートルーム案内 -->
+        <div style="background: #fdf4ff; border: 1px solid #f0abfc; border-radius: 10px; padding: 10px 12px; margin-bottom: 14px;">
+          <div style="font-weight: 700; font-size: 0.8rem; color: #86198f; margin-bottom: 4px;">🔒 娘さん専用プライベートルーム（家族とデータを分ける）</div>
+          <div style="font-size: 0.72rem; color: #701a75; line-height: 1.45; margin-bottom: 8px;">
+            ご両親の部屋（<code>family-sync</code>）とも、姉妹同士とも切り離された **「完全個別のプライベート部屋」** をワンタップで作れます！お互いのデータが混ざることは一切ありません。
+          </div>
+          <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 6px;">
+            <button type="button" class="btn" style="padding: 5px 10px; font-size: 0.72rem; background: #fae8ff; color: #86198f; border: 1px solid #d8b4fe; font-weight: 600;" onclick="setDaughterRoom(1)">
+              👧 長女専用ルーム (daughter1)
+            </button>
+            <button type="button" class="btn" style="padding: 5px 10px; font-size: 0.72rem; background: #fdf2f8; color: #9d174d; border: 1px solid #fbcfe8; font-weight: 600;" onclick="setDaughterRoom(2)">
+              👧 次女専用ルーム (daughter2)
+            </button>
+            <button type="button" class="btn" style="padding: 5px 10px; font-size: 0.72rem; background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; font-weight: 600;" onclick="setCustomPrivateRoom()">
+              ✏️ 好きな名前で専用ルーム作成
+            </button>
+          </div>
+          <div style="font-size: 0.68rem; color: #86198f;">
+            ※ボタンを押して下の「接続＆同期スタート」を押すだけで完了します。
           </div>
         </div>
 
@@ -2643,10 +2694,34 @@
       updateScoreAndAdvisor(totalCal, totalP, totalF, totalC, targets);
 
       // 体重
-      const wVal = localStorage.getItem(`asuken_${uid}_weight_${key}`) || '';
-      const fVal = localStorage.getItem(`asuken_${uid}_fat_${key}`) || '';
-      document.getElementById('weightInput').value = wVal;
-      document.getElementById('fatInput').value = fVal;
+      const weightList = getWeightList(uid, key);
+      const wHistoryEl = document.getElementById('weightHistoryList');
+      if (weightList.length > 0) {
+        const latestW = weightList[weightList.length - 1];
+        document.getElementById('weightInput').value = latestW.weight;
+        document.getElementById('fatInput').value = (latestW.fat !== null && latestW.fat !== undefined && !isNaN(latestW.fat)) ? latestW.fat : '';
+        if (wHistoryEl) {
+          wHistoryEl.innerHTML = `
+            <div style="font-size: 0.72rem; font-weight: 700; color: #64748b; margin-top: 6px; margin-bottom: 2px;">
+              📋 本日の体重測定履歴（計 ${weightList.length} 回）
+            </div>
+            ${weightList.map(item => `
+              <div style="display: flex; justify-content: space-between; align-items: center; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 6px 10px; font-size: 0.78rem;">
+                <div>
+                  <span style="display: inline-block; padding: 2px 6px; border-radius: 4px; font-weight: 700; font-size: 0.7rem; background: #e0f2fe; color: #0369a1; margin-right: 6px;">${item.timing || '測定'} ${item.time || ''}</span>
+                  <strong>${Number(item.weight).toFixed(1)}</strong> <span style="font-size:0.7rem; color:#64748b;">kg</span>
+                  ${item.fat !== null && item.fat !== undefined && !isNaN(item.fat) ? `<span style="margin-left: 8px; font-size: 0.72rem; color: #64748b;">(体脂肪 ${Number(item.fat).toFixed(1)}%)</span>` : ''}
+                </div>
+                <button type="button" style="background: none; border: none; color: #94a3b8; font-size: 0.85rem; cursor: pointer; padding: 2px 6px;" onclick="deleteWeightItem('${item.id}')">✕</button>
+              </div>
+            `).join('')}
+          `;
+        }
+      } else {
+        document.getElementById('weightInput').value = '';
+        document.getElementById('fatInput').value = '';
+        if (wHistoryEl) wHistoryEl.innerHTML = '';
+      }
 
       renderBpDayData();
       renderWaterDayData();
@@ -2655,7 +2730,9 @@
       // 🧬 年齢・身長からの健康度 & カラダ年齢の更新
       const bpRaw = localStorage.getItem(`asuken_${uid}_bp_${key}`);
       const bpObj = bpRaw ? JSON.parse(bpRaw) : null;
-      updateHealthAndBodyAge(wVal ? parseFloat(wVal) : null, fVal ? parseFloat(fVal) : null, bpObj, window.lastMealScore || 70);
+      const curW = weightList.length > 0 ? weightList[weightList.length - 1].weight : null;
+      const curF = (weightList.length > 0 && weightList[weightList.length - 1].fat !== null) ? weightList[weightList.length - 1].fat : null;
+      updateHealthAndBodyAge(curW, curF, bpObj, window.lastMealScore || 70);
     }
 
     // --- 💧 水分補給トラッカー ---
@@ -2935,32 +3012,32 @@
         d.setDate(d.getDate() - i);
         const dKey = getDateKey(d);
 
-        const bpRaw = localStorage.getItem(`asuken_${uid}_bp_${dKey}`);
-        const bp = bpRaw ? JSON.parse(bpRaw) : null;
+        const bpList = getBpList(uid, dKey);
+        const weightList = getWeightList(uid, dKey);
 
-        const w = localStorage.getItem(`asuken_${uid}_weight_${dKey}`);
-
-        if (w) {
-          const wNum = parseFloat(w);
-          if (startWeight === null) startWeight = wNum;
-          endWeight = wNum;
+        const latestW = weightList.length > 0 ? weightList[weightList.length - 1].weight : null;
+        if (latestW !== null) {
+          if (startWeight === null) startWeight = latestW;
+          endWeight = latestW;
         }
 
-        if (bp && (bp.sys || bp.dia)) {
-          countBp++;
-          if (bp.sys) {
-            totalSys += bp.sys;
-            if (bp.sys > maxSys) maxSys = bp.sys;
-          }
-          if (bp.dia) totalDia += bp.dia;
-          if (bp.pulse) totalPulse += bp.pulse;
+        if (bpList.length > 0) {
+          bpList.forEach(bp => {
+            countBp++;
+            if (bp.sys) {
+              totalSys += bp.sys;
+              if (bp.sys > maxSys) maxSys = bp.sys;
+            }
+            if (bp.dia) totalDia += bp.dia;
+            if (bp.pulse) totalPulse += bp.pulse;
+          });
         }
 
         rows.push({
           date: dKey,
           dateObj: d,
-          bp: bp,
-          weight: w
+          bpList: bpList,
+          weightList: weightList
         });
       }
 
@@ -2999,29 +3076,40 @@
 
       let tableHtml = '';
       rows.forEach(r => {
-        const bp = r.bp;
-        const w = r.weight ? `${r.weight}kg` : '--';
         const dText = `${r.dateObj.getMonth() + 1}/${r.dateObj.getDate()} (${['日','月','火','水','木','金','土'][r.dateObj.getDay()]})`;
+        const wStr = (r.weightList && r.weightList.length > 0) ? `${Number(r.weightList[r.weightList.length - 1].weight).toFixed(1)}kg` : '--';
 
-        const sys = bp?.sys || '--';
-        const dia = bp?.dia || '--';
-        const pulse = bp?.pulse || '--';
-        const time = bp?.time || '--';
+        if (!r.bpList || r.bpList.length === 0) {
+          tableHtml += `
+            <tr>
+              <td style="font-weight:700;">${dText}</td>
+              <td style="color:#94a3b8;">--</td>
+              <td style="color:#94a3b8;">--</td>
+              <td style="color:#94a3b8;">--</td>
+              <td style="color:#94a3b8;">--</td>
+              <td>${wStr}</td>
+              <td style="font-size:0.7rem; color:#94a3b8;">未測定</td>
+            </tr>
+          `;
+        } else {
+          r.bpList.forEach((bp, idx) => {
+            const timeText = `${bp.timing ? `[${bp.timing}] ` : ''}${bp.time || '--'}`;
+            const isHigh = (bp.sys && bp.sys >= 135) || (bp.dia && bp.dia >= 85);
+            const highlightClass = isHigh ? 'report-highlight-bp' : '';
 
-        const isHigh = (bp?.sys && bp.sys >= 135) || (bp?.dia && bp.dia >= 85);
-        const highlightClass = isHigh ? 'report-highlight-bp' : '';
-
-        tableHtml += `
-          <tr class="${highlightClass}">
-            <td style="font-weight:700;">${dText}</td>
-            <td>${time}</td>
-            <td style="font-size:0.85rem; font-weight:800;">${sys}</td>
-            <td style="font-size:0.85rem; font-weight:800;">${dia}</td>
-            <td>${pulse}</td>
-            <td>${w}</td>
-            <td style="font-size:0.7rem; color:#475569;">${isHigh ? '基準超過 ⚠️' : (bp ? '正常範囲' : '未測定')}</td>
-          </tr>
-        `;
+            tableHtml += `
+              <tr class="${highlightClass}">
+                <td style="font-weight:700;">${idx === 0 ? dText : '<span style="color:#94a3b8; font-size:0.7rem;">〃</span>'}</td>
+                <td style="font-size:0.75rem;">${timeText}</td>
+                <td style="font-size:0.85rem; font-weight:800; color: ${isHigh ? '#dc2626' : '#0f172a'};">${bp.sys || '--'}</td>
+                <td style="font-size:0.85rem; font-weight:800; color: ${isHigh ? '#dc2626' : '#0f172a'};">${bp.dia || '--'}</td>
+                <td>${bp.pulse || '--'}</td>
+                <td>${idx === 0 ? wStr : ''}</td>
+                <td style="font-size:0.7rem; color:#475569;">${isHigh ? '基準超過 ⚠️' : '正常範囲'}</td>
+              </tr>
+            `;
+          });
+        }
       });
 
       container.innerHTML = `
@@ -3200,14 +3288,152 @@
       window.lastMealScore = score;
     }
 
+    // --- 🕒 測定タイミング判定ユーティリティ ---
+    function getTimingFromTime(timeStr) {
+      if (!timeStr) return 'その他';
+      const m = String(timeStr).match(/(\d{1,2})/);
+      if (!m) return 'その他';
+      const h = parseInt(m[1], 10);
+      if (h < 11) return '朝';
+      if (h < 16) return '昼';
+      return '晩';
+    }
+
+    // --- 🩺 血圧・脈拍 複数測定リスト管理 (1日何回でもOK) ---
+    function getBpList(uid, dateVal) {
+      const rawList = localStorage.getItem(`asuken_${uid}_bp_list_${dateVal}`);
+      if (rawList) {
+        try {
+          const arr = JSON.parse(rawList);
+          if (Array.isArray(arr) && arr.length > 0) return arr;
+        } catch (e) {}
+      }
+      const single = localStorage.getItem(`asuken_${uid}_bp_${dateVal}`);
+      if (single) {
+        try {
+          const bp = JSON.parse(single);
+          if (bp && (bp.sys || bp.dia)) {
+            return [{
+              id: 'bp_init_' + dateVal,
+              sys: bp.sys,
+              dia: bp.dia,
+              pulse: bp.pulse,
+              time: bp.time || '08:00',
+              timing: bp.timing || getTimingFromTime(bp.time || '08:00'),
+              comment: bp.comment || ''
+            }];
+          }
+        } catch (e) {}
+      }
+      return [];
+    }
+
+    function saveBpList(uid, dateVal, list) {
+      syncSetItem(`asuken_${uid}_bp_list_${dateVal}`, JSON.stringify(list));
+      if (list && list.length > 0) {
+        const latest = list[list.length - 1];
+        syncSetItem(`asuken_${uid}_bp_${dateVal}`, JSON.stringify(latest));
+      } else {
+        syncRemoveItem(`asuken_${uid}_bp_${dateVal}`);
+      }
+    }
+
+    function deleteBpItem(id) {
+      if (!confirm('この血圧測定記録を削除しますか？')) return;
+      const key = getDateKey(currentDate);
+      const uid = currentUserId;
+      let list = getBpList(uid, key);
+      list = list.filter(item => item.id !== id);
+      saveBpList(uid, key, list);
+      renderDayData();
+      renderBpChart();
+    }
+
+    // --- ⚖️ 体重・体脂肪 複数測定リスト管理 (1日何回でもOK) ---
+    function getWeightList(uid, dateVal) {
+      const rawList = localStorage.getItem(`asuken_${uid}_weight_list_${dateVal}`);
+      if (rawList) {
+        try {
+          const arr = JSON.parse(rawList);
+          if (Array.isArray(arr) && arr.length > 0) return arr;
+        } catch (e) {}
+      }
+      const singleW = localStorage.getItem(`asuken_${uid}_weight_${dateVal}`);
+      const singleF = localStorage.getItem(`asuken_${uid}_fat_${dateVal}`);
+      if (singleW) {
+        const wNum = parseFloat(singleW);
+        if (!isNaN(wNum)) {
+          return [{
+            id: 'w_init_' + dateVal,
+            time: '08:00',
+            timing: '朝 (起床後)',
+            weight: wNum,
+            fat: singleF ? parseFloat(singleF) : null
+          }];
+        }
+      }
+      return [];
+    }
+
+    function saveWeightList(uid, dateVal, list) {
+      syncSetItem(`asuken_${uid}_weight_list_${dateVal}`, JSON.stringify(list));
+      if (list && list.length > 0) {
+        const latest = list[list.length - 1];
+        syncSetItem(`asuken_${uid}_weight_${dateVal}`, String(latest.weight));
+        if (latest.fat !== null && latest.fat !== undefined && !isNaN(latest.fat)) {
+          syncSetItem(`asuken_${uid}_fat_${dateVal}`, String(latest.fat));
+        } else {
+          syncRemoveItem(`asuken_${uid}_fat_${dateVal}`);
+        }
+      } else {
+        syncRemoveItem(`asuken_${uid}_weight_${dateVal}`);
+        syncRemoveItem(`asuken_${uid}_fat_${dateVal}`);
+      }
+    }
+
+    function deleteWeightItem(id) {
+      if (!confirm('この体重測定記録を削除しますか？')) return;
+      const key = getDateKey(currentDate);
+      const uid = currentUserId;
+      let list = getWeightList(uid, key);
+      list = list.filter(item => item.id !== id);
+      saveWeightList(uid, key, list);
+      renderDayData();
+      renderWeightChart();
+    }
+
+    // --- 🔒 娘さん（長女・次女・個別）専用プライベートルーム切替 ---
+    function setDaughterRoom(num) {
+      const roomInput = document.getElementById('syncRoomInput');
+      const code = `daughter${num}-private`;
+      if (roomInput) roomInput.value = code;
+      const label = num === 1 ? '長女' : (num === 2 ? '次女' : `${num}番目`);
+      alert(`合言葉を「${code}」にセットしました！\n下の「接続＆同期スタート」を押すと、ご両親とも姉妹とも完全に切り離された【${label}さん専用ルーム】になります。`);
+    }
+
+    function setCustomPrivateRoom() {
+      const name = prompt('お名前またはニックネームを半角英数字で入力してください（例: yuki, sakura）:');
+      if (!name) return;
+      const clean = name.trim().toLowerCase().replace(/[^a-z0-9_-]/g, '');
+      if (!clean) {
+        alert('半角英数字で入力してください');
+        return;
+      }
+      const code = `${clean}-private`;
+      const roomInput = document.getElementById('syncRoomInput');
+      if (roomInput) roomInput.value = code;
+      alert(`合言葉を「${code}」にセットしました！\n下の「接続＆同期スタート」を押すと、ご家族にデータが見えない【あなた専用ルーム】になります。`);
+    }
+
     // --- 🩺 血圧データの描画 & 判定 ---
     function renderBpDayData() {
       const key = getDateKey(currentDate);
-      const raw = localStorage.getItem(`asuken_${currentUserId}_bp_${key}`);
+      const list = getBpList(currentUserId, key);
       const pill = document.getElementById('bpStatusPill');
       const timeDisplay = document.getElementById('bpTimeDisplay');
+      const historyEl = document.getElementById('bpHistoryList');
 
-      if (!raw) {
+      if (!list || list.length === 0) {
         document.getElementById('bpSysDisplay').textContent = '--';
         document.getElementById('bpDiaDisplay').textContent = '--';
         document.getElementById('bpPulseDisplay').textContent = '--';
@@ -3215,17 +3441,19 @@
         pill.style.background = '#f1f5f9';
         pill.style.color = '#64748b';
         timeDisplay.textContent = '';
+        if (historyEl) historyEl.innerHTML = '';
         return;
       }
 
-      const bp = JSON.parse(raw);
-      document.getElementById('bpSysDisplay').textContent = bp.sys || '--';
-      document.getElementById('bpDiaDisplay').textContent = bp.dia || '--';
-      document.getElementById('bpPulseDisplay').textContent = bp.pulse || '--';
-      timeDisplay.textContent = bp.time ? `(${bp.time} 測定)` : '';
+      // 最新の測定値をメイン表示
+      const latest = list[list.length - 1];
+      document.getElementById('bpSysDisplay').textContent = latest.sys || '--';
+      document.getElementById('bpDiaDisplay').textContent = latest.dia || '--';
+      document.getElementById('bpPulseDisplay').textContent = latest.pulse || '--';
+      timeDisplay.textContent = `(本日 ${list.length}回 / 最新 ${latest.time || ''} ${latest.timing || ''})`;
 
-      const sys = bp.sys;
-      const dia = bp.dia;
+      const sys = latest.sys;
+      const dia = latest.dia;
 
       if (sys < 120 && dia < 80) {
         pill.textContent = '🟢 正常血圧';
@@ -3248,6 +3476,25 @@
         pill.style.background = '#fecaca';
         pill.style.color = '#991b1b';
       }
+
+      // 本日の測定履歴リスト
+      if (historyEl) {
+        historyEl.innerHTML = `
+          <div style="font-size: 0.72rem; font-weight: 700; color: #64748b; margin-top: 6px; margin-bottom: 2px;">
+            📋 本日の血圧測定履歴（計 ${list.length} 回）
+          </div>
+          ${list.map(item => `
+            <div style="display: flex; justify-content: space-between; align-items: center; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 6px 10px; font-size: 0.78rem;">
+              <div>
+                <span style="display: inline-block; padding: 2px 6px; border-radius: 4px; font-weight: 700; font-size: 0.7rem; background: #fee2e2; color: #b91c1c; margin-right: 6px;">${item.timing || '測定'} ${item.time || ''}</span>
+                <strong>${item.sys}</strong> / <strong>${item.dia}</strong> <span style="font-size:0.7rem; color:#64748b;">mmHg</span>
+                ${item.pulse ? `<span style="margin-left: 8px; font-size: 0.72rem; color: #10b981;">脈拍 ${item.pulse}</span>` : ''}
+              </div>
+              <button type="button" style="background: none; border: none; color: #94a3b8; font-size: 0.85rem; cursor: pointer; padding: 2px 6px;" onclick="deleteBpItem('${item.id}')">✕</button>
+            </div>
+          `).join('')}
+        `;
+      }
     }
 
     // --- 🩺 血圧推移グラフ ---
@@ -3264,11 +3511,11 @@
         const k = getDateKey(d);
         labels.push(`${d.getMonth() + 1}/${d.getDate()}`);
 
-        const raw = localStorage.getItem(`asuken_${uid}_bp_${k}`);
-        if (raw) {
-          const parsed = JSON.parse(raw);
-          sysData.push(parsed.sys || null);
-          diaData.push(parsed.dia || null);
+        const list = getBpList(uid, k);
+        if (list && list.length > 0) {
+          const latest = list[list.length - 1];
+          sysData.push(latest.sys || null);
+          diaData.push(latest.dia || null);
         } else {
           sysData.push(null);
           diaData.push(null);
@@ -3359,8 +3606,8 @@
           d.setDate(d.getDate() - i);
           const k = getDateKey(d);
           labels.push(`${d.getMonth() + 1}/${d.getDate()}`);
-          const w = localStorage.getItem(`asuken_${uid}_weight_${k}`);
-          weights.push(w ? parseFloat(w) : null);
+          const list = getWeightList(uid, k);
+          weights.push(list.length > 0 ? list[list.length - 1].weight : null);
         }
       } else if (currentWeightPeriod === 'month') {
         // 過去30日間
@@ -3368,11 +3615,10 @@
           const d = new Date(currentDate);
           d.setDate(d.getDate() - i);
           const k = getDateKey(d);
-          // 適度に間引いたラベル
           const showLabel = (i % 5 === 0 || i === 29 || i === 0);
           labels.push(showLabel ? `${d.getMonth() + 1}/${d.getDate()}` : '');
-          const w = localStorage.getItem(`asuken_${uid}_weight_${k}`);
-          weights.push(w ? parseFloat(w) : null);
+          const list = getWeightList(uid, k);
+          weights.push(list.length > 0 ? list[list.length - 1].weight : null);
         }
       } else if (currentWeightPeriod === 'year') {
         // 過去12ヶ月
@@ -3387,9 +3633,9 @@
           let sum = 0, count = 0;
           for (let day = 1; day <= 31; day++) {
             const dayKey = `${monthKey}-${String(day).padStart(2, '0')}`;
-            const w = localStorage.getItem(`asuken_${uid}_weight_${dayKey}`);
-            if (w) {
-              sum += parseFloat(w);
+            const list = getWeightList(uid, dayKey);
+            if (list.length > 0) {
+              sum += list[list.length - 1].weight;
               count++;
             }
           }
@@ -3444,18 +3690,42 @@
       const val = document.getElementById('weightInput').value;
       const key = getDateKey(currentDate);
       const uid = currentUserId;
-      if (val) syncSetItem(`asuken_${uid}_weight_${key}`, val);
-      else syncRemoveItem(`asuken_${uid}_weight_${key}`);
+      if (!val) {
+        saveWeightList(uid, key, []);
+        renderWeightChart();
+        renderDayData();
+        return;
+      }
+      const now = new Date();
+      const timeVal = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+      const fVal = document.getElementById('fatInput').value;
+      const list = getWeightList(uid, key);
+      list.push({
+        id: 'w_' + Date.now(),
+        time: timeVal,
+        timing: getTimingFromTime(timeVal),
+        weight: parseFloat(val),
+        fat: fVal ? parseFloat(fVal) : null,
+        date: key
+      });
+      saveWeightList(uid, key, list);
       renderWeightChart();
       renderDayData();
     }
 
     function saveFat() {
-      const val = document.getElementById('fatInput').value;
+      const fVal = document.getElementById('fatInput').value;
       const key = getDateKey(currentDate);
       const uid = currentUserId;
-      if (val) syncSetItem(`asuken_${uid}_fat_${key}`, val);
-      else syncRemoveItem(`asuken_${uid}_fat_${key}`);
+      const list = getWeightList(uid, key);
+      if (list.length > 0) {
+        list[list.length - 1].fat = fVal ? parseFloat(fVal) : null;
+        saveWeightList(uid, key, list);
+      } else if (fVal) {
+        syncSetItem(`asuken_${uid}_fat_${key}`, fVal);
+      } else {
+        syncRemoveItem(`asuken_${uid}_fat_${key}`);
+      }
       renderDayData();
     }
 
@@ -3636,6 +3906,45 @@
       document.getElementById('weightModal').classList.add('active');
     }
 
+    // --- ⚖️ 体重計OCR / 記録モーダル ---
+    function openWeightModal() {
+      const key = getDateKey(currentDate);
+      const list = getWeightList(currentUserId, key);
+      const now = new Date();
+      const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+      document.getElementById('weightFormDate').value = key;
+      document.getElementById('weightFormTime').value = timeStr;
+
+      const timingSelect = document.getElementById('weightFormTiming');
+      if (timingSelect) {
+        const h = now.getHours();
+        if (h < 11) timingSelect.value = '朝 (起床後)';
+        else if (h < 16) timingSelect.value = '昼';
+        else if (h < 21) timingSelect.value = '入浴後';
+        else timingSelect.value = '晩 (就寝前)';
+      }
+
+      if (list.length > 0) {
+        const latest = list[list.length - 1];
+        document.getElementById('weightFormVal').value = latest.weight || '';
+        document.getElementById('fatFormVal').value = (latest.fat !== null && latest.fat !== undefined && !isNaN(latest.fat)) ? latest.fat : '';
+      } else {
+        const targets = getUserTargets();
+        document.getElementById('weightFormVal').value = targets.weight ? targets.weight.toFixed(1) : '';
+        document.getElementById('fatFormVal').value = '';
+      }
+
+      document.getElementById('weightPreviewWrap').style.display = 'none';
+      document.getElementById('weightLoadingBox').style.display = 'none';
+      document.getElementById('weightResultBadge').style.display = 'none';
+      document.getElementById('weightCameraInput').value = '';
+      document.getElementById('weightGalleryInput').value = '';
+
+      updateApiBadge();
+      document.getElementById('weightModal').classList.add('active');
+    }
+
     function closeWeightModal() {
       document.getElementById('weightModal').classList.remove('active');
     }
@@ -3731,11 +4040,22 @@
       if (w) document.getElementById('weightFormVal').value = w;
       if (f) document.getElementById('fatFormVal').value = f;
 
-      // 日付は現在カルテの日付（画面に表示されている日）を優先
       const dateVal = getDateKey(currentDate);
       document.getElementById('weightFormDate').value = dateVal;
+      const now = new Date();
+      const timeVal = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+      document.getElementById('weightFormTime').value = timeVal;
 
-      // 自動保存（写真を選んだ時点で即座に記録完了！）
+      const timingSelect = document.getElementById('weightFormTiming');
+      if (timingSelect) {
+        const h = now.getHours();
+        if (h < 11) timingSelect.value = '朝 (起床後)';
+        else if (h < 16) timingSelect.value = '昼';
+        else if (h < 21) timingSelect.value = '入浴後';
+        else timingSelect.value = '晩 (就寝前)';
+      }
+
+      // 自動保存
       if (w) {
         saveWeightFromModal(false);
       }
@@ -3743,7 +4063,7 @@
       resultBadge.style.display = 'block';
       resultBadge.innerHTML = `
         <strong>✅ 記録完了: 体重 ${w || '--'} kg ${f ? '(体脂肪率: ' + f + '%)' : ''}</strong><br>
-        <span style="font-size:0.75rem; color:#15803d;">自動でカルテに保存されました！修正したい場合は数値を直して「記録する」を押してください。</span><br>
+        <span style="font-size:0.75rem; color:#15803d;">自動でカルテに追加保存されました！1日に何回でも測定できます。</span><br>
         <span style="font-size:0.75rem; color:#4b5563;">👩‍🏫 「${res.comment || '体重の記録ありがとうございます！'}」</span>
         ${isDemo ? '<div style="margin-top:4px; font-size:0.7rem; color:#b45309;">※デモ読み取りです。</div>' : ''}
       `;
@@ -3751,6 +4071,8 @@
 
     function saveWeightFromModal(autoClose = true) {
       const dateVal = document.getElementById('weightFormDate').value || getDateKey(currentDate);
+      const timeVal = document.getElementById('weightFormTime').value || '08:00';
+      const timingVal = (document.getElementById('weightFormTiming') && document.getElementById('weightFormTiming').value) || getTimingFromTime(timeVal);
       const wVal = document.getElementById('weightFormVal').value;
       const fVal = document.getElementById('fatFormVal').value;
       const uid = currentUserId;
@@ -3760,9 +4082,17 @@
         return;
       }
 
-      syncSetItem(`asuken_${uid}_weight_${dateVal}`, wVal);
-      if (fVal) syncSetItem(`asuken_${uid}_fat_${dateVal}`, fVal);
-      else syncRemoveItem(`asuken_${uid}_fat_${dateVal}`);
+      const list = getWeightList(uid, dateVal);
+      const newWeight = {
+        id: 'w_' + Date.now(),
+        time: timeVal,
+        timing: timingVal,
+        weight: parseFloat(wVal),
+        fat: fVal ? parseFloat(fVal) : null,
+        date: dateVal
+      };
+      list.push(newWeight);
+      saveWeightList(uid, dateVal, list);
 
       renderDayData();
       renderWeightChart();
@@ -3775,18 +4105,26 @@
     // --- 🩺 血圧モーダル操作 ---
     function openBpModal() {
       const key = getDateKey(currentDate);
-      const raw = localStorage.getItem(`asuken_${currentUserId}_bp_${key}`);
-      
-      document.getElementById('bpFormDate').value = key;
+      const list = getBpList(currentUserId, key);
       const now = new Date();
-      document.getElementById('bpFormTime').value = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+      const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
 
-      if (raw) {
-        const bp = JSON.parse(raw);
-        document.getElementById('bpFormSys').value = bp.sys || '';
-        document.getElementById('bpFormDia').value = bp.dia || '';
-        document.getElementById('bpFormPulse').value = bp.pulse || '';
-        if (bp.time) document.getElementById('bpFormTime').value = bp.time;
+      document.getElementById('bpFormDate').value = key;
+      document.getElementById('bpFormTime').value = timeStr;
+
+      const timingSelect = document.getElementById('bpFormTiming');
+      if (timingSelect) {
+        const h = now.getHours();
+        if (h < 11) timingSelect.value = '朝';
+        else if (h < 16) timingSelect.value = '昼';
+        else timingSelect.value = '晩';
+      }
+
+      if (list.length > 0) {
+        const latest = list[list.length - 1];
+        document.getElementById('bpFormSys').value = latest.sys || '';
+        document.getElementById('bpFormDia').value = latest.dia || '';
+        document.getElementById('bpFormPulse').value = latest.pulse || '';
       } else {
         document.getElementById('bpFormSys').value = '';
         document.getElementById('bpFormDia').value = '';
@@ -3888,7 +4226,6 @@
       const resultBadge = document.getElementById('bpResultBadge');
       loadingBox.style.display = 'none';
 
-      // キー名の揺れや単位の混入を吸収して数値抽出
       const rawSys = res.sys || res.systolic || res.max || '';
       const rawDia = res.dia || res.diastolic || res.min || '';
       const rawPulse = res.pulse || res.heart_rate || res.rate || '';
@@ -3901,7 +4238,6 @@
       if (dia) document.getElementById('bpFormDia').value = dia;
       if (pulse) document.getElementById('bpFormPulse').value = pulse;
 
-      // 日付は現在カルテの日付（画面に表示されている日）を優先
       const dateVal = getDateKey(currentDate);
       document.getElementById('bpFormDate').value = dateVal;
 
@@ -3911,16 +4247,21 @@
           document.getElementById('bpFormTime').value = `${String(tm[1]).padStart(2, '0')}:${String(tm[2]).padStart(2, '0')}`;
         }
       }
+      const timeVal = document.getElementById('bpFormTime').value;
+      const timingSelect = document.getElementById('bpFormTiming');
+      if (timingSelect) {
+        timingSelect.value = getTimingFromTime(timeVal);
+      }
 
-      // 自動保存（ユーザーが保存ボタンを押し忘れても即座に記録完了！）
+      // 自動保存
       if (sys || dia) {
-        saveBpRecord(false); // false = モーダルを開いたまま完了表示
+        saveBpRecord(false);
       }
 
       resultBadge.style.display = 'block';
       resultBadge.innerHTML = `
         <strong>✅ 記録完了: 最高 ${sys || '--'} / 最低 ${dia || '--'} mmHg (脈拍: ${pulse || '--'})</strong><br>
-        <span style="font-size:0.75rem; color:#15803d;">自動でカルテに保存されました！修正したい場合は数値を直して「記録する」を押してください。</span><br>
+        <span style="font-size:0.75rem; color:#15803d;">自動でカルテに追加保存されました！1日に何回でも測定できます。</span><br>
         <span style="font-size:0.75rem; color:#4b5563;">👩‍⚕️ 「${res.comment || '血圧の記録ありがとうございます！'}」</span>
         ${isDemo ? '<div style="margin-top:4px; font-size:0.7rem; color:#b45309;">※デモ読み取りです。</div>' : ''}
       `;
@@ -3928,7 +4269,8 @@
 
     function saveBpRecord(autoClose = true) {
       const dateVal = document.getElementById('bpFormDate').value || getDateKey(currentDate);
-      const timeVal = document.getElementById('bpFormTime').value;
+      const timeVal = document.getElementById('bpFormTime').value || '12:00';
+      const timingVal = (document.getElementById('bpFormTiming') && document.getElementById('bpFormTiming').value) || getTimingFromTime(timeVal);
       const sysVal = parseInt(document.getElementById('bpFormSys').value) || null;
       const diaVal = parseInt(document.getElementById('bpFormDia').value) || null;
       const pulseVal = parseInt(document.getElementById('bpFormPulse').value) || null;
@@ -3938,15 +4280,20 @@
         return;
       }
 
-      const bpObj = {
+      const uid = currentUserId;
+      const list = getBpList(uid, dateVal);
+      const newBp = {
+        id: 'bp_' + Date.now(),
         sys: sysVal,
         dia: diaVal,
         pulse: pulseVal,
         time: timeVal,
+        timing: timingVal,
         date: dateVal
       };
+      list.push(newBp);
+      saveBpList(uid, dateVal, list);
 
-      syncSetItem(`asuken_${currentUserId}_bp_${dateVal}`, JSON.stringify(bpObj));
       renderDayData();
       renderBpChart();
 
