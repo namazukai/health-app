@@ -2146,7 +2146,8 @@
     let bpChart = null;
     const DEFAULT_GEMINI_KEY = 'AQ.Ab8RN6JjZPHKe6yD8FzKdLCMVo05KU2JbHi9mQOw17nz0jexVA';
     let geminiApiKey = localStorage.getItem('asuken_gemini_api_key') || DEFAULT_GEMINI_KEY;
-    const DEFAULT_SYNC_ROOM = 'family-sync';
+    // デフォルトの部屋は空にしておき、家族リンク(#room=family-sync)を開いた人だけが家族部屋に参加する安全設計
+    const DEFAULT_SYNC_ROOM = '';
     const DEFAULT_FIREBASE_CONFIG = {
       apiKey: ['AIzaSyDaklGjcRgX', '0wRDdTlaI5ZTfIpYEcGDTLU'].join(''),
       authDomain: "my-health-sync-63c6e.firebaseapp.com",
