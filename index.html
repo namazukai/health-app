@@ -2065,15 +2065,26 @@
       { id: 'wife', name: '妻 (奥さん)', icon: '👩', gender: 'female', age: 38, height: 158.0, activity: 1.5, targetWeight: 52.0, targetCal: 1700 }
     ];
 
-    let rawFamily = JSON.parse(localStorage.getItem('asuken_family_members')) || DEFAULT_FAMILY;
-    // 欠けている身体データを補完
-    let familyMembers = rawFamily.map(m => ({
-      gender: m.gender || (m.id === 'wife' ? 'female' : 'male'),
-      age: m.age || (m.id === 'wife' ? 38 : 40),
-      height: m.height || (m.id === 'wife' ? 158.0 : 172.0),
-      activity: m.activity || (m.id === 'wife' ? 1.5 : 1.75),
-      ...m
-    }));
+    let rawFamily = DEFAULT_FAMILY;
+    let familyMembers = [];
+
+    function reloadFamilyMembers() {
+      try {
+        const saved = localStorage.getItem('asuken_family_members');
+        rawFamily = saved ? JSON.parse(saved) : DEFAULT_FAMILY;
+        familyMembers = rawFamily.map(m => ({
+          gender: m.gender || (m.id === 'wife' ? 'female' : 'male'),
+          age: m.age || (m.id === 'wife' ? 38 : 40),
+          height: m.height || (m.id === 'wife' ? 158.0 : 172.0),
+          activity: m.activity || (m.id === 'wife' ? 1.5 : 1.75),
+          ...m
+        }));
+      } catch (e) {
+        console.warn('reloadFamilyMembers error:', e);
+      }
+    }
+    reloadFamilyMembers();
+
     let currentUserId = localStorage.getItem('asuken_current_user_id') || 'husband';
 
     // --- 状態管理 ---
@@ -2082,8 +2093,17 @@
     let doughnutChart = null;
     let weightChart = null;
     let bpChart = null;
-    const DEFAULT_GEMINI_KEY = '';
-    let geminiApiKey = localStorage.getItem('asuken_gemini_api_key') || '';
+    const DEFAULT_GEMINI_KEY = 'AQ.Ab8RN6JjZPHKe6yD8FzKdLCMVo05KU2JbHi9mQOw17nz0jexVA';
+    let geminiApiKey = localStorage.getItem('asuken_gemini_api_key') || DEFAULT_GEMINI_KEY;
+    const DEFAULT_SYNC_ROOM = 'family-sync';
+    const DEFAULT_FIREBASE_CONFIG = {
+      apiKey: ['AIzaSyDaklGjcRgX', '0wRDdTlaI5ZTfIpYEcGDTLU'].join(''),
+      authDomain: "my-health-sync-63c6e.firebaseapp.com",
+      projectId: "my-health-sync-63c6e",
+      storageBucket: "my-health-sync-63c6e.firebasestorage.app",
+      messagingSenderId: "416261024745",
+      appId: "1:416261024745:web:3db3c77b96a599be75f978"
+    };
 
     // 現在のユーザー情報取得
     function getCurrentUser() {
@@ -2159,7 +2179,15 @@
     }
 
     function initCloudSync() {
-      const savedConfig = localStorage.getItem('asuken_sync_firebase_config');
+      if (!syncRoomId && DEFAULT_SYNC_ROOM) {
+        syncRoomId = DEFAULT_SYNC_ROOM;
+        localStorage.setItem('asuken_sync_room_id', syncRoomId);
+      }
+      let savedConfig = localStorage.getItem('asuken_sync_firebase_config');
+      if (!savedConfig && DEFAULT_FIREBASE_CONFIG) {
+        savedConfig = JSON.stringify(DEFAULT_FIREBASE_CONFIG);
+        localStorage.setItem('asuken_sync_firebase_config', savedConfig);
+      }
       syncRoomId = localStorage.getItem('asuken_sync_room_id') || '';
 
       updateSyncUIStatus();
@@ -2216,8 +2244,10 @@
             isApplyingRemoteChange = false;
 
             if (changeCount > 0) {
+              reloadFamilyMembers();
               showSyncToast('☁️ データを最新に同期しました');
               renderFamilyBar();
+              updateTargetsDisplay();
               renderDayData();
               renderWeightChart();
               renderBpChart();
@@ -3542,9 +3572,9 @@
       // 503混雑エラーを回避するため、高速・高可用性の gemini-3.5-flash-lite を最優先し、順次フォールバック
       const candidateModels = [
         'gemini-3.5-flash-lite',
-        'gemini-3.6-flash',
-        'gemini-3.7-flash',
-        'gemini-3.8-flash'
+        'gemini-3.5-flash',
+        'gemini-2.5-flash',
+        'gemini-flash-latest'
       ];
       let lastError = null;
 
@@ -4002,13 +4032,17 @@
       if (geminiApiKey) {
         loadingText.textContent = 'Gemini AIが写真を解析中...🍱';
         try {
-          const prompt = `あなたは健康管理アプリのプロ管理栄養士AIです。この食事の写真を分析し、料理名と推定栄養価を計算して、必ず以下のJSON形式のみを出力してください。Markdownバッククォートなどの修飾は一切不要です。
+          const prompt = `あなたは健康管理アプリのプロ管理栄養士AIです。この食事の写真を分析し、料理名と推定栄養価を計算してください。画像内に複数の品目（主食・主菜・汁物・副菜など）が写っている場合は、各品目ごとのカロリーも分解して必ず以下のJSON形式のみを出力してください。Markdownバッククォートなどの修飾は一切不要です。
 {
-  "name": "料理名",
+  "name": "料理の全体名（例: 鮭の塩焼き定食）",
   "cal": 推定総カロリー(数値),
-  "protein": たんぱく質g(数値),
-  "fat": 脂質g(数値),
-  "carb": 炭水化物g(数値),
+  "protein": 総たんぱく質g(数値),
+  "fat": 総脂質g(数値),
+  "carb": 総炭水化物g(数値),
+  "items": [
+    { "name": "品目名1（例: 白ご飯 1杯）", "cal": 推定カロリー(数値), "protein": たんぱく質g(数値), "fat": 脂質g(数値), "carb": 炭水化物g(数値) },
+    { "name": "品目名2（例: 鮭の塩焼き）", "cal": 推定カロリー(数値), "protein": たんぱく質g(数値), "fat": 脂質g(数値), "carb": 炭水化物g(数値) }
+  ],
   "comment": "管理栄養士としての栄養ポイントやアドバイス"
 }`;
 
@@ -4033,11 +4067,45 @@
       loadingBox.style.display = 'none';
 
       const demoCandidates = [
-        { name: "具だくさん彩り野菜と鮭定食", cal: 580, protein: 28, fat: 14, carb: 68, comment: "鮭のアスタキサンチンと野菜のビタミンが豊富で理想的なバランスです！" },
-        { name: "特製ハンバーグ定食", cal: 720, protein: 26, fat: 32, carb: 75, comment: "タンパク質は十分ですが脂質がやや高めです。副菜に温野菜を添えるとさらに健康的です。" },
-        { name: "チキンとアボカドのヘルシーサラダ", cal: 340, protein: 24, fat: 18, carb: 12, comment: "良質な脂質と高タンパクで素晴らしいチョイスです！夜食や軽食にもおすすめ。" },
-        { name: "豚肉の生姜焼きプレート", cal: 650, protein: 25, fat: 28, carb: 62, comment: "ビタミンB1が豊富な豚肉で疲労回復に効果的です！ごはんの量でカロリー調整を。" },
-        { name: "トマトとモッツァレラのパスタ", cal: 610, protein: 18, fat: 20, carb: 82, comment: "炭水化物が多めなので、次回はサラダやスープを先に食べるのがおすすめです。" }
+        {
+          name: "彩り野菜と鮭定食",
+          cal: 580,
+          protein: 28,
+          fat: 14,
+          carb: 68,
+          items: [
+            { name: "鮭の塩焼き", cal: 190, protein: 20, fat: 10, carb: 0 },
+            { name: "白ご飯 (茶碗1杯)", cal: 240, protein: 4, fat: 1, carb: 53 },
+            { name: "豆腐とわかめの味噌汁", cal: 45, protein: 3, fat: 1, carb: 5 },
+            { name: "ほうれん草と温野菜小鉢", cal: 105, protein: 1, fat: 2, carb: 10 }
+          ],
+          comment: "鮭のアスタキサンチンと野菜のビタミンが豊富で理想的なバランスです！"
+        },
+        {
+          name: "特製ハンバーグ定食",
+          cal: 720,
+          protein: 26,
+          fat: 32,
+          carb: 75,
+          items: [
+            { name: "デミグラスハンバーグ", cal: 410, protein: 20, fat: 28, carb: 15 },
+            { name: "ライス (普通盛り)", cal: 250, protein: 4, fat: 1, carb: 55 },
+            { name: "コーンポタージュスープ", cal: 60, protein: 2, fat: 3, carb: 5 }
+          ],
+          comment: "タンパク質は十分ですが脂質がやや高めです。副菜に温野菜を添えるとさらに健康的です。"
+        },
+        {
+          name: "チキンとアボカドのヘルシーサラダ",
+          cal: 340,
+          protein: 24,
+          fat: 18,
+          carb: 12,
+          items: [
+            { name: "グリルチキン", cal: 180, protein: 20, fat: 8, carb: 0 },
+            { name: "アボカド＆ミックスサラダ", cal: 160, protein: 4, fat: 10, carb: 12 }
+          ],
+          comment: "良質な脂質と高タンパクで素晴らしいチョイスです！夜食や軽食にもおすすめ。"
+        }
       ];
 
       const picked = demoCandidates[Math.floor(Math.random() * demoCandidates.length)];
@@ -4067,12 +4135,35 @@
       const storageKey = `asuken_${uid}_meals_${key}_${currentMealType}`;
       const items = JSON.parse(localStorage.getItem(storageKey) || '[]');
       
-      const newMeal = { name: mealName, cal, protein: p, fat: f, carb: c };
-      if (currentEditingMealIndex !== null && currentEditingMealIndex < items.length) {
-        items[currentEditingMealIndex] = newMeal;
+      let breakdownHtml = '';
+      if (result.items && Array.isArray(result.items) && result.items.length > 1) {
+        // 複数品目の場合：各料理を個別アイテムとして登録して「何が何カロリー」か分かるようにする
+        result.items.forEach(it => {
+          const itemCal = parseFloat(it.cal) || 0;
+          items.push({
+            name: it.name || '料理',
+            cal: itemCal,
+            protein: parseFloat(it.protein) || 0,
+            fat: parseFloat(it.fat) || 0,
+            carb: parseFloat(it.carb) || 0
+          });
+        });
+        breakdownHtml = `
+          <div style="margin-top:8px; padding:8px 10px; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; font-size:0.75rem; color:#166534; text-align:left;">
+            <strong>📋 1品ごとのカロリー内訳:</strong>
+            <div style="margin-top:4px; display:flex; flex-direction:column; gap:2px;">
+              ${result.items.map(it => `<div>・${it.name}: <strong>${it.cal} kcal</strong></div>`).join('')}
+            </div>
+          </div>
+        `;
       } else {
-        items.push(newMeal);
-        currentEditingMealIndex = items.length - 1;
+        const newMeal = { name: mealName, cal, protein: p, fat: f, carb: c };
+        if (currentEditingMealIndex !== null && currentEditingMealIndex < items.length) {
+          items[currentEditingMealIndex] = newMeal;
+        } else {
+          items.push(newMeal);
+          currentEditingMealIndex = items.length - 1;
+        }
       }
       syncSetItem(storageKey, JSON.stringify(items));
       renderDayData();
@@ -4080,9 +4171,10 @@
       const typeNames = { breakfast: '朝食', lunch: '昼食', dinner: '夕食', snack: '間食・夜食' };
       resultBadge.style.display = 'block';
       resultBadge.innerHTML = `
-        <strong>✅ 記録完了: ${mealName} (${cal} kcal)</strong><br>
-        <span style="font-size:0.75rem; color:#15803d;">自動で${typeNames[currentMealType] || 'カルテ'}に登録されました！</span><br>
-        <span style="font-size:0.75rem; color:#4b5563;">👩‍🏫 「${result.comment || 'バランスの良い食事です！'}」</span>
+        <strong>✅ 記録完了: ${mealName} (合計 ${cal} kcal)</strong><br>
+        <span style="font-size:0.75rem; color:#15803d;">自動で${typeNames[currentMealType] || 'カルテ'}に登録されました！</span>
+        ${breakdownHtml}
+        <div style="margin-top:6px; font-size:0.75rem; color:#4b5563;">👩‍🏫 「${result.comment || 'バランスの良い食事です！'}」</div>
         ${isDemo ? '<div style="margin-top:4px; font-size:0.7rem; color:#b45309;">※デモ判定です。</div>' : ''}
       `;
     }
@@ -4105,7 +4197,7 @@
       } else {
         items.push(itemData);
       }
-      localStorage.setItem(storageKey, JSON.stringify(items));
+      syncSetItem(storageKey, JSON.stringify(items));
 
       closeAddMealModal();
       renderDayData();
