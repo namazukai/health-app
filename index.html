@@ -843,6 +843,87 @@
       color: var(--primary-dark);
     }
 
+    /* 📖 簡易カロリー早見表（タブ＆チップ） */
+    .calorie-table-box {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 10px 12px;
+      margin-bottom: 14px;
+    }
+    .calorie-table-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #334155;
+      margin-bottom: 8px;
+    }
+    .calorie-tabs {
+      display: flex;
+      gap: 5px;
+      overflow-x: auto;
+      padding-bottom: 5px;
+      margin-bottom: 8px;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .calorie-tabs::-webkit-scrollbar {
+      display: none;
+    }
+    .calorie-tab-btn {
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 14px;
+      padding: 4px 10px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: #64748b;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s ease;
+    }
+    .calorie-tab-btn.active {
+      background: #10b981;
+      border-color: #10b981;
+      color: #ffffff;
+      box-shadow: 0 1px 3px rgba(16,185,129,0.3);
+    }
+    .calorie-chips-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      max-height: 120px;
+      overflow-y: auto;
+      padding-right: 2px;
+    }
+    .calorie-preset-item {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      padding: 4px 9px;
+      border-radius: 12px;
+      font-size: 0.73rem;
+      color: #334155;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.15s ease;
+      user-select: none;
+    }
+    .calorie-preset-item:hover, .calorie-preset-item:active {
+      background: #f0fdf4;
+      border-color: #86efac;
+      color: #166534;
+      transform: translateY(-1px);
+    }
+    .calorie-preset-item .cal-val {
+      font-weight: 700;
+      color: #ea580c;
+      font-size: 0.72rem;
+    }
+
     .form-group {
       margin-bottom: 12px;
     }
@@ -1760,20 +1841,36 @@
           <div class="ai-result-badge" id="aiResultBadge"></div>
         </div>
 
-        <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 6px;">💡 定番メニューから選ぶ:</div>
-        <div class="preset-chips">
-          <button type="button" class="preset-chip" onclick="applyPreset('白米ごはん(並盛)', 234, 4, 1, 53)">🍚 白米 (234kcal)</button>
-          <button type="button" class="preset-chip" onclick="applyPreset('味噌汁(豆腐・わかめ)', 48, 3, 1, 4)">🥣 味噌汁 (48kcal)</button>
-          <button type="button" class="preset-chip" onclick="applyPreset('鶏むね肉のソテー', 210, 31, 8, 1)">🍗 鶏むね肉 (210kcal)</button>
-          <button type="button" class="preset-chip" onclick="applyPreset('グリーンサラダ', 45, 1, 2, 6)">🥗 サラダ (45kcal)</button>
-          <button type="button" class="preset-chip" onclick="applyPreset('ゆで卵(1個)', 76, 6, 5, 0.2)">🥚 ゆで卵 (76kcal)</button>
-          <button type="button" class="preset-chip" onclick="applyPreset('醤油ラーメン', 480, 18, 10, 75)">🍜 ラーメン (480kcal)</button>
-          <button type="button" class="preset-chip" onclick="applyPreset('カレーライス', 720, 16, 22, 110)">🍛 カレー (720kcal)</button>
+        <div class="form-group" style="margin-top: 10px; margin-bottom: 12px;">
+          <label class="form-label" style="display:flex; justify-content:space-between; align-items:center;">
+            <span>食べた料理・メニュー名</span>
+            <span style="font-size: 0.72rem; color: #059669; font-weight: 600;">✨ テキストAI自動計算</span>
+          </label>
+          <div style="display: flex; gap: 6px;">
+            <input type="text" class="form-control" id="foodName" placeholder="例: 豚の生姜焼き定食、ご飯少なめ、味噌汁" style="flex: 1;">
+            <button type="button" class="btn btn-primary" id="btnAiEstimateText" onclick="estimateCaloriesWithAi()" style="white-space: nowrap; padding: 0 12px; font-size: 0.8rem; font-weight: bold; background: linear-gradient(135deg, #10b981, #059669); border: none; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 5px rgba(16,185,129,0.3);">
+              <span>🤖 AI推定</span>
+            </button>
+          </div>
+          <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 4px; line-height: 1.3;">
+            💡 料理名や組み合わせを入力して「🤖 AI推定」を押すと、Geminiがカロリー・PFC・品目内訳を自動算出します。
+          </div>
         </div>
 
-        <div class="form-group">
-          <label class="form-label">メニュー・料理名</label>
-          <input type="text" class="form-control" id="foodName" placeholder="例: 鮭の塩焼き定食">
+        <!-- 📖 簡易カロリー早見表（タブ切り替え） -->
+        <div class="calorie-table-box">
+          <div class="calorie-table-header">
+            <span>📖 簡易カロリー早見表（タップで自動入力）</span>
+            <span style="font-size: 0.7rem; color: var(--text-muted);">代表的なメニュー</span>
+          </div>
+          <div class="calorie-tabs">
+            <button type="button" class="calorie-tab-btn active" data-tab="staple" onclick="switchCalorieTab('staple')">🍚 主食</button>
+            <button type="button" class="calorie-tab-btn" data-tab="main" onclick="switchCalorieTab('main')">🥩 主菜</button>
+            <button type="button" class="calorie-tab-btn" data-tab="side" onclick="switchCalorieTab('side')">🥗 汁物・副菜</button>
+            <button type="button" class="calorie-tab-btn" data-tab="popular" onclick="switchCalorieTab('popular')">🍱 定番・外食</button>
+            <button type="button" class="calorie-tab-btn" data-tab="snack" onclick="switchCalorieTab('snack')">☕ 間食・飲物</button>
+          </div>
+          <div class="calorie-chips-container" id="caloriePresetChips"></div>
         </div>
 
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
@@ -3843,18 +3940,18 @@
       ];
       let lastError = null;
 
+      const parts = [{ text: prompt }];
+      if (mimeType && base64Content) {
+        parts.push({ inline_data: { mime_type: mimeType, data: base64Content } });
+      }
+
       for (const model of candidateModels) {
         try {
           const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${geminiApiKey}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              contents: [{
-                parts: [
-                  { text: prompt },
-                  { inline_data: { mime_type: mimeType, data: base64Content } }
-                ]
-              }]
+              contents: [{ parts }]
             })
           });
 
@@ -4299,10 +4396,92 @@
 
     // --- 🍱 食事モーダル処理 ---
     let currentEditingMealIndex = null;
+    window.pendingMealItems = null;
+
+    // 📖 簡易カロリー早見表データ
+    const CALORIE_PRESETS = {
+      staple: [
+        { name: '白米ごはん(並盛 150g)', cal: 234, p: 3.8, f: 0.5, c: 53.4, icon: '🍚' },
+        { name: '白米ごはん(大盛 200g)', cal: 312, p: 5.0, f: 0.6, c: 71.2, icon: '🍚' },
+        { name: '白米ごはん(小盛 100g)', cal: 156, p: 2.5, f: 0.3, c: 35.6, icon: '🍚' },
+        { name: '玄米ごはん(150g)', cal: 228, p: 4.2, f: 1.5, c: 51.3, icon: '🌾' },
+        { name: '食パン(6枚切 1枚)', cal: 149, p: 5.6, f: 2.6, c: 28.0, icon: '🍞' },
+        { name: 'フランスパン(2切)', cal: 145, p: 4.7, f: 0.7, c: 30.0, icon: '🥖' },
+        { name: '鮭おにぎり(1個)', cal: 175, p: 4.5, f: 1.2, c: 37.0, icon: '🍙' },
+        { name: '梅おにぎり(1個)', cal: 165, p: 3.2, f: 0.5, c: 37.5, icon: '🍙' },
+        { name: 'かけうどん(1玉)', cal: 242, p: 6.1, f: 1.0, c: 53.2, icon: '🍜' },
+        { name: 'ざるそば(1玉)', cal: 274, p: 12.0, f: 2.0, c: 54.0, icon: '🥢' },
+        { name: 'パスタ(乾麺100g茹で)', cal: 347, p: 13.0, f: 1.8, c: 71.0, icon: '🍝' }
+      ],
+      main: [
+        { name: '鶏むね肉ソテー(150g)', cal: 210, p: 31.0, f: 8.0, c: 1.0, icon: '🍗' },
+        { name: '豚の生姜焼き', cal: 380, p: 22.0, f: 28.0, c: 8.0, icon: '🥩' },
+        { name: '牛赤身ステーキ(150g)', cal: 280, p: 32.0, f: 16.0, c: 0.5, icon: '🥩' },
+        { name: '鮭の塩焼き(1切)', cal: 180, p: 20.0, f: 10.0, c: 0.1, icon: '🐟' },
+        { name: '鯖の塩焼き(1切)', cal: 260, p: 18.0, f: 20.0, c: 0.2, icon: '🐟' },
+        { name: 'デミグラスハンバーグ', cal: 380, p: 19.0, f: 25.0, c: 14.0, icon: '🍳' },
+        { name: '鶏の唐揚げ(3個)', cal: 260, p: 16.0, f: 18.0, c: 8.0, icon: '🍗' },
+        { name: '目玉焼き(1個)', cal: 95, p: 6.5, f: 7.5, c: 0.2, icon: '🍳' },
+        { name: '納豆(1パック)', cal: 85, p: 7.5, f: 4.5, c: 5.5, icon: '🥢' },
+        { name: '刺身盛り合わせ(1人前)', cal: 150, p: 26.0, f: 4.0, c: 0.5, icon: '🍣' }
+      ],
+      side: [
+        { name: '豆腐とわかめの味噌汁', cal: 48, p: 3.2, f: 1.2, c: 4.5, icon: '🥣' },
+        { name: '具だくさん豚汁', cal: 165, p: 8.5, f: 10.5, c: 9.0, icon: '🍲' },
+        { name: '野菜コンソメスープ', cal: 35, p: 1.5, f: 0.5, c: 6.5, icon: '🥣' },
+        { name: 'グリーンサラダ', cal: 45, p: 1.2, f: 2.0, c: 6.0, icon: '🥗' },
+        { name: 'ほうれん草のお浸し', cal: 25, p: 2.0, f: 0.3, c: 3.5, icon: '🥬' },
+        { name: 'きんぴらごぼう', cal: 80, p: 1.5, f: 3.0, c: 12.0, icon: '🥕' },
+        { name: '冷奴(絹ごし半丁)', cal: 75, p: 7.0, f: 4.0, c: 2.5, icon: '🥢' },
+        { name: '筑前煮・根菜煮物', cal: 130, p: 6.0, f: 3.5, c: 18.0, icon: '🍲' },
+        { name: 'ポテトサラダ(小鉢)', cal: 120, p: 2.0, f: 7.0, c: 12.0, icon: '🥗' },
+        { name: 'ブロッコリー茹で(100g)', cal: 33, p: 4.3, f: 0.5, c: 5.2, icon: '🥦' }
+      ],
+      popular: [
+        { name: 'カレーライス', cal: 720, p: 16.0, f: 22.0, c: 110.0, icon: '🍛' },
+        { name: '醤油ラーメン', cal: 480, p: 18.0, f: 10.0, c: 75.0, icon: '🍜' },
+        { name: '豚骨ラーメン', cal: 620, p: 22.0, f: 26.0, c: 72.0, icon: '🍜' },
+        { name: '牛丼(並盛)', cal: 680, p: 20.0, f: 23.0, c: 95.0, icon: '🥢' },
+        { name: 'かつ丼(並盛)', cal: 850, p: 28.0, f: 33.0, c: 105.0, icon: '🍳' },
+        { name: '炒飯・チャーハン', cal: 650, p: 15.0, f: 20.0, c: 98.0, icon: '🍚' },
+        { name: 'ミックスサンドイッチ', cal: 290, p: 10.0, f: 13.0, c: 32.0, icon: '🥪' },
+        { name: 'ピザ(1ピース)', cal: 220, p: 8.5, f: 9.0, c: 25.0, icon: '🍕' },
+        { name: '握り寿司(8貫)', cal: 450, p: 22.0, f: 4.0, c: 80.0, icon: '🍣' }
+      ],
+      snack: [
+        { name: 'バナナ(1本)', cal: 86, p: 1.1, f: 0.2, c: 22.5, icon: '🍌' },
+        { name: 'プレーンヨーグルト(100g)', cal: 62, p: 3.6, f: 3.0, c: 5.3, icon: '🥛' },
+        { name: 'プロテインドリンク', cal: 105, p: 20.0, f: 1.5, c: 2.5, icon: '🥤' },
+        { name: 'ゆで卵(1個)', cal: 76, p: 6.5, f: 5.0, c: 0.2, icon: '🥚' },
+        { name: 'ブラックコーヒー', cal: 5, p: 0.4, f: 0.0, c: 0.7, icon: '☕' },
+        { name: 'カフェラテ(無糖 200ml)', cal: 78, p: 4.5, f: 4.2, c: 6.0, icon: '☕' },
+        { name: 'どら焼き(1個)', cal: 240, p: 5.0, f: 2.0, c: 52.0, icon: '🍡' },
+        { name: 'チョコレート(半分 25g)', cal: 140, p: 2.0, f: 8.5, c: 13.5, icon: '🍫' },
+        { name: 'ミックスナッツ(25g)', cal: 155, p: 4.5, f: 14.0, c: 4.5, icon: '🥜' },
+        { name: 'バニラアイス(1個)', cal: 210, p: 3.5, f: 11.0, c: 24.0, icon: '🍦' }
+      ]
+    };
+
+    function switchCalorieTab(tabKey) {
+      document.querySelectorAll('.calorie-tab-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-tab') === tabKey);
+      });
+      const container = document.getElementById('caloriePresetChips');
+      if (!container) return;
+      const list = CALORIE_PRESETS[tabKey] || [];
+      container.innerHTML = list.map(item => {
+        return `<button type="button" class="calorie-preset-item" onclick="applyPreset('${item.name}', ${item.cal}, ${item.p}, ${item.f}, ${item.c})">
+          <span>${item.icon || '🍽️'}</span>
+          <span>${item.name}</span>
+          <span class="cal-val">${item.cal}kcal</span>
+        </button>`;
+      }).join('');
+    }
 
     function openAddMealModal(type) {
       currentMealType = type;
       currentEditingMealIndex = null; // リセット
+      window.pendingMealItems = null; // リセット
       const names = { breakfast: '朝食', lunch: '昼食', dinner: '夕食', snack: '間食・夜食' };
       document.getElementById('modalMealTitle').textContent = `＋ ${names[type]}を記録する`;
       
@@ -4317,6 +4496,7 @@
       document.getElementById('cameraInput').value = '';
       document.getElementById('galleryInput').value = '';
 
+      switchCalorieTab('staple');
       updateApiBadge();
       document.getElementById('addMealModal').classList.add('active');
     }
@@ -4331,6 +4511,198 @@
       document.getElementById('foodProtein').value = p;
       document.getElementById('foodFat').value = f;
       document.getElementById('foodCarb').value = c;
+      window.pendingMealItems = null; // プリセット選択時は単一アイテム
+      const resultBadge = document.getElementById('aiResultBadge');
+      if (resultBadge) resultBadge.style.display = 'none';
+    }
+
+    // --- 🤖 テキストからのAIカロリー推定 ---
+    async function estimateCaloriesWithAi() {
+      const foodNameInput = document.getElementById('foodName');
+      const text = foodNameInput.value.trim();
+      if (!text) {
+        alert('食べたメニューや料理名を入力してください。\n（例: 豚の生姜焼き定食、ご飯少なめ、味噌汁）');
+        foodNameInput.focus();
+        return;
+      }
+
+      const loadingBox = document.getElementById('aiLoadingBox');
+      const loadingText = document.getElementById('aiLoadingText');
+      const resultBadge = document.getElementById('aiResultBadge');
+
+      loadingBox.style.display = 'flex';
+      loadingText.textContent = `Gemini AIが「${text}」のカロリーと栄養価を計算中...🍱`;
+      resultBadge.style.display = 'none';
+
+      if (geminiApiKey) {
+        try {
+          const prompt = `あなたは健康管理アプリのプロ専属管理栄養士AIです。ユーザーが食べた以下の食事内容テキストから、料理名・推定総カロリー・PFC(たんぱく質・脂質・炭水化物)を精密に計算してください。定食やセット、複数の品目が記載されている場合は、品目ごとのカロリー内訳も分解してください。
+食べた内容: 「${text}」
+
+必ず以下のJSON形式のみを出力してください。Markdownバッククォートなどの修飾は一切不要です。
+{
+  "name": "料理名（例: 豚の生姜焼き定食）",
+  "cal": 推定総カロリー(数値),
+  "protein": 総たんぱく質g(数値),
+  "fat": 総脂質g(数値),
+  "carb": 総炭水化物g(数値),
+  "items": [
+    { "name": "品目名1（例: 豚の生姜焼き）", "cal": 推定カロリー(数値), "protein": たんぱく質g(数値), "fat": 脂質g(数値), "carb": 炭水化物g(数値) },
+    { "name": "品目名2（例: ご飯(少なめ)）", "cal": 推定カロリー(数値), "protein": たんぱく質g(数値), "fat": 脂質g(数値), "carb": 炭水化物g(数値) }
+  ],
+  "comment": "管理栄養士からの1〜2文の栄養バランスアドバイス"
+}`;
+          const result = await callGeminiWithFallback(prompt);
+          applyAiTextResult(result, false);
+        } catch (err) {
+          console.error('Text AI Estimate Error:', err);
+          loadingBox.style.display = 'none';
+          alert('AI推論で一時的エラーが発生しました。デモ推論で概算します。\n' + err.message);
+          estimateCaloriesFallback(text);
+        }
+      } else {
+        setTimeout(() => {
+          estimateCaloriesFallback(text);
+        }, 800);
+      }
+    }
+
+    function applyAiTextResult(result, isDemo) {
+      const loadingBox = document.getElementById('aiLoadingBox');
+      const resultBadge = document.getElementById('aiResultBadge');
+      loadingBox.style.display = 'none';
+
+      const mealName = result.name || document.getElementById('foodName').value.trim() || '食事';
+      const cal = parseFloat(result.cal) || 0;
+      const p = parseFloat(result.protein) || 0;
+      const f = parseFloat(result.fat) || 0;
+      const c = parseFloat(result.carb) || 0;
+
+      document.getElementById('foodName').value = mealName;
+      document.getElementById('foodCal').value = cal;
+      document.getElementById('foodProtein').value = p;
+      document.getElementById('foodFat').value = f;
+      document.getElementById('foodCarb').value = c;
+
+      if (result.items && Array.isArray(result.items) && result.items.length > 1) {
+        window.pendingMealItems = result.items;
+      } else {
+        window.pendingMealItems = null;
+      }
+
+      let breakdownHtml = '';
+      if (result.items && Array.isArray(result.items) && result.items.length > 1) {
+        breakdownHtml = `
+          <div style="margin-top:6px; padding:6px 10px; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:6px; font-size:0.75rem; color:#166534; text-align:left;">
+            <strong>📋 品目別のカロリー内訳:</strong>
+            <div style="margin-top:3px; display:flex; flex-direction:column; gap:2px;">
+              ${result.items.map(it => `<div>・${it.name}: <strong>${it.cal} kcal</strong> (P:${it.protein}g F:${it.fat}g C:${it.carb}g)</div>`).join('')}
+            </div>
+          </div>
+        `;
+      }
+
+      resultBadge.style.display = 'block';
+      resultBadge.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <strong>🤖 AI推定完了: 約 ${cal} kcal</strong>
+          <span style="font-size:0.7rem; background:#dcfce7; color:#15803d; padding:2px 6px; border-radius:4px; font-weight:bold;">PFC自動入力済</span>
+        </div>
+        ${breakdownHtml}
+        <div style="margin-top:5px; font-size:0.75rem; color:#4b5563;">👩‍🏫 「${result.comment || 'バランスよく召し上がってくださいね！'}」</div>
+        <div style="margin-top:6px; font-size:0.73rem; color:#059669; font-weight:bold;">👇 内容を確認・微調整の上、「記録する」を押して登録してください。</div>
+        ${isDemo ? '<div style="margin-top:3px; font-size:0.7rem; color:#b45309;">※デモ推論による概算値です（APIキー設定で本番AIが稼働）。</div>' : ''}
+      `;
+    }
+
+    function estimateCaloriesFallback(text) {
+      let res = {
+        name: text,
+        cal: 450,
+        protein: 15,
+        fat: 12,
+        carb: 65,
+        items: [],
+        comment: "バランスを意識した食事です。よく噛んで召し上がってくださいね！"
+      };
+
+      if (text.includes('生姜焼き') || text.includes('しょうが焼き')) {
+        res = {
+          name: text,
+          cal: 720,
+          protein: 26,
+          fat: 28,
+          carb: 85,
+          items: [
+            { name: "豚の生姜焼き", cal: 380, protein: 20, fat: 26, carb: 8 },
+            { name: "ご飯 (並盛)", cal: 240, protein: 4, fat: 1, carb: 53 },
+            { name: "豆腐とわかめの味噌汁", cal: 48, protein: 3, fat: 1, carb: 5 },
+            { name: "千切りキャベツ", cal: 25, protein: 1, fat: 0.1, carb: 5 }
+          ],
+          comment: "豚肉のビタミンB1は疲労回復に効果的です。ご飯の量もちょうど良いですね！"
+        };
+      } else if (text.includes('ラーメン')) {
+        res = {
+          name: text,
+          cal: 520,
+          protein: 19,
+          fat: 14,
+          carb: 78,
+          comment: "スープを半分残すと塩分と脂質をカットできてより健康的です。"
+        };
+      } else if (text.includes('カレー')) {
+        res = {
+          name: text,
+          cal: 750,
+          protein: 18,
+          fat: 24,
+          carb: 115,
+          comment: "糖質と脂質が多めなので、サラダなどの野菜を一緒に摂ると血糖値の上昇を抑えられます。"
+        };
+      } else if (text.includes('牛丼')) {
+        res = {
+          name: text,
+          cal: 680,
+          protein: 20,
+          fat: 23,
+          carb: 95,
+          comment: "紅生姜や七味、卵を合わせると栄養バランスが整いやすくなります。"
+        };
+      } else if (text.includes('うどん') || text.includes('そば') || text.includes('蕎麦')) {
+        res = {
+          name: text,
+          cal: 360,
+          protein: 14,
+          fat: 3,
+          carb: 68,
+          comment: "消化が良くエネルギーになりやすいメニューです。卵やワカメをトッピングするとさらに良質です。"
+        };
+      } else if (text.includes('定食')) {
+        res = {
+          name: text,
+          cal: 650,
+          protein: 28,
+          fat: 18,
+          carb: 88,
+          items: [
+            { name: "主菜", cal: 320, protein: 22, fat: 16, carb: 6 },
+            { name: "ご飯", cal: 240, protein: 4, fat: 1, carb: 53 },
+            { name: "味噌汁・小鉢", cal: 90, protein: 2, fat: 1, carb: 9 }
+          ],
+          comment: "一汁三菜の定食スタイルはPFCバランスが整いやすく理想的です！"
+        };
+      } else if (text.includes('サラダ')) {
+        res = {
+          name: text,
+          cal: 120,
+          protein: 4,
+          fat: 6,
+          carb: 12,
+          comment: "食物繊維とビタミンがしっかり摂れています！ドレッシングのかけすぎには注意しましょう。"
+        };
+      }
+
+      applyAiTextResult(res, true);
     }
 
     async function handleImageFile(event) {
@@ -4533,11 +4905,37 @@
       const storageKey = `asuken_${uid}_meals_${key}_${currentMealType}`;
       const items = JSON.parse(localStorage.getItem(storageKey) || '[]');
 
-      const itemData = { name, cal, protein: p, fat: f, carb: c };
-      if (currentEditingMealIndex !== null && currentEditingMealIndex < items.length) {
-        items[currentEditingMealIndex] = itemData;
+      if (window.pendingMealItems && Array.isArray(window.pendingMealItems) && window.pendingMealItems.length > 1) {
+        // AI推定の複数品目がある場合
+        const aiTotalCal = window.pendingMealItems.reduce((acc, it) => acc + (parseFloat(it.cal) || 0), 0);
+        // ユーザーが手動で総カロリーを書き換えていない場合は内訳ごとにカルテに登録
+        if (Math.abs(cal - aiTotalCal) < 2) {
+          window.pendingMealItems.forEach(it => {
+            items.push({
+              name: it.name || '料理',
+              cal: parseFloat(it.cal) || 0,
+              protein: parseFloat(it.protein) || 0,
+              fat: parseFloat(it.fat) || 0,
+              carb: parseFloat(it.carb) || 0
+            });
+          });
+        } else {
+          // 手動で編集した場合はその値を1品として登録
+          const itemData = { name, cal, protein: p, fat: f, carb: c };
+          if (currentEditingMealIndex !== null && currentEditingMealIndex < items.length) {
+            items[currentEditingMealIndex] = itemData;
+          } else {
+            items.push(itemData);
+          }
+        }
+        window.pendingMealItems = null;
       } else {
-        items.push(itemData);
+        const itemData = { name, cal, protein: p, fat: f, carb: c };
+        if (currentEditingMealIndex !== null && currentEditingMealIndex < items.length) {
+          items[currentEditingMealIndex] = itemData;
+        } else {
+          items.push(itemData);
+        }
       }
       syncSetItem(storageKey, JSON.stringify(items));
 
@@ -4773,6 +5171,7 @@
       renderDayData();
       renderWeightChart();
       renderBpChart();
+      switchCalorieTab('staple');
     });
   </script>
 </body>
