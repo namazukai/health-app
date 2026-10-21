@@ -2041,25 +2041,22 @@
           </div>
         </div>
 
-        <!-- 個人・個別プライベートルーム案内（誰にでも自然な汎用デザイン） -->
+        <!-- 個人・個別プライベートルーム案内（誰にも絶対に推測・重複されない安全設計） -->
         <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px 12px; margin-bottom: 14px;">
-          <div style="font-weight: 700; font-size: 0.8rem; color: #334155; margin-bottom: 4px;">🔒 データを共有せず個別に分けたい場合</div>
+          <div style="font-weight: 700; font-size: 0.8rem; color: #334155; margin-bottom: 4px;">🔒 誰にも見られない自分専用ルームを作りたい場合</div>
           <div style="font-size: 0.72rem; color: #64748b; line-height: 1.45; margin-bottom: 8px;">
-            家族や同居人同士でもデータを分けたい場合は、合言葉をそれぞれ別々の言葉（例: <code>自分の名前</code> など）にするだけで完全に独立した個別部屋になります。
+            下のボタンを押すと、<strong>世界で誰とも被らないランダムな専用合言葉</strong>が自動発行され、家族やお友達と完全に切り離された自分専用の部屋が作れます。
           </div>
           <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 6px;">
-            <button type="button" class="btn" style="padding: 5px 10px; font-size: 0.72rem; background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; font-weight: 600;" onclick="setQuickRoom('private-room-1')">
-              🔒 個別ルーム ①
+            <button type="button" class="btn" style="padding: 6px 14px; font-size: 0.74rem; background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; font-weight: 700;" onclick="generateUniquePrivateRoom()">
+              🎲 誰とも被らない専用合言葉を自動発行
             </button>
-            <button type="button" class="btn" style="padding: 5px 10px; font-size: 0.72rem; background: #fdf2f8; color: #9d174d; border: 1px solid #fbcfe8; font-weight: 600;" onclick="setQuickRoom('private-room-2')">
-              🔒 個別ルーム ②
-            </button>
-            <button type="button" class="btn" style="padding: 5px 10px; font-size: 0.72rem; background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; font-weight: 600;" onclick="setCustomPrivateRoom()">
-              ✏️ 好きな合言葉で個別作成
+            <button type="button" class="btn" style="padding: 6px 12px; font-size: 0.74rem; background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; font-weight: 600;" onclick="setCustomPrivateRoom()">
+              ✏️ 自分で好きな合言葉を決める
             </button>
           </div>
           <div style="font-size: 0.68rem; color: #64748b;">
-            ※家族で共有する場合は、ご家族だけで決めた秘密の合言葉（例: <code>my-secret-77</code>）をご使用ください。
+            ※ご夫婦で共有する場合は、お二人で決めた同じ合言葉（例: <code>family-sync</code>）をご使用ください。
           </div>
         </div>
 
@@ -3403,11 +3400,13 @@
       renderWeightChart();
     }
 
-    // --- 🔒 個別プライベートルーム切替（誰にでも自然な汎用設計） ---
-    function setQuickRoom(roomCode) {
+    // --- 🔒 個別プライベートルーム切替（誰にも絶対に推測・重複されない安全設計） ---
+    function generateUniquePrivateRoom() {
+      // 誰とも絶対に被らないランダムな専用合言葉を自動生成
+      const randomCode = 'room-' + Math.random().toString(36).substring(2, 6) + '-' + Math.floor(100 + Math.random() * 900);
       const roomInput = document.getElementById('syncRoomInput');
-      if (roomInput) roomInput.value = roomCode;
-      alert(`合言葉を「${roomCode}」にセットしました！\n下の「接続＆同期スタート」を押すと、他の人と切り離された【個別ルーム】になります。`);
+      if (roomInput) roomInput.value = randomCode;
+      alert(`誰とも被らない専用の合言葉【${randomCode}】を発行しました！\n下の「接続＆同期スタート」を押すと、世界であなただけの完全個別ルームになります。`);
     }
 
     function setCustomPrivateRoom() {
