@@ -11,6 +11,9 @@
   <link rel="apple-touch-icon" href="https://api.iconify.design/twemoji:salad.svg">
   <!-- Chart.js CDN -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Firebase SDK (無料クラウド自動同期用) -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1164,6 +1167,27 @@
       color: #991b1b;
       font-weight: 700;
     }
+
+    .sync-toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(15, 23, 42, 0.92);
+      color: white;
+      padding: 10px 18px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+      z-index: 9999;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
     @media print {
       body * {
         visibility: hidden !important;
@@ -1201,6 +1225,10 @@
           <span>🥗</span> 健康管理アプリ <span style="font-size: 0.72rem; font-weight: 700; background: rgba(255,255,255,0.28); padding: 2px 7px; border-radius: 999px; margin-left: 6px; letter-spacing: 0.5px;">ver.1</span>
         </div>
         <div class="header-actions">
+          <button class="header-btn" id="cloudSyncBtn" onclick="openSyncModal()" style="display: flex; align-items: center; gap: 5px;">
+            <span id="syncDot" style="width: 7px; height: 7px; border-radius: 50%; background: #94a3b8; display: inline-block;"></span>
+            <span id="syncBtnText">☁️ 同期</span>
+          </button>
           <button class="header-btn" onclick="openReportModal()">📄 医師用レポート</button>
           <button class="header-btn" onclick="openApiKeyModal()">🤖 AI設定</button>
           <button class="header-btn" onclick="openTargetModal()">🎯 目標</button>
@@ -1957,6 +1985,77 @@
       </div>
     </div>
 
+    <!-- ☁️ クラウドリアルタイム自動同期モーダル -->
+    <div class="modal-overlay" id="syncModal">
+      <div class="modal-content" style="max-width: 540px; max-height: 90vh; overflow-y: auto;">
+        <div class="modal-title">☁️ 端末間・家族リアルタイム自動同期</div>
+
+        <div style="font-size: 0.8rem; color: #475569; line-height: 1.5; margin-bottom: 14px;">
+          iPhoneで記録した食事・血圧・体重・服薬・水分が、<strong>パソコンやご家族のスマホにも瞬時に自動同期</strong>されます（Google Firebase Firestoreの無料枠を使用）。
+        </div>
+
+        <!-- 接続状態バナー -->
+        <div id="syncStatusBanner" style="background: #f1f5f9; border-radius: 10px; padding: 10px 14px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span id="syncBannerDot" style="width: 10px; height: 10px; border-radius: 50%; background: #94a3b8; display: inline-block;"></span>
+            <span id="syncBannerStatusText" style="font-size: 0.82rem; font-weight: 700; color: #334155;">未接続（この端末内のみ保存中）</span>
+          </div>
+          <button type="button" id="disconnectSyncBtn" style="display:none; font-size: 0.72rem; color: #dc2626; background: none; border: none; cursor: pointer; text-decoration: underline;" onclick="disconnectCloudSync()">切断する</button>
+        </div>
+
+        <!-- 同期設定フォーム -->
+        <div class="form-group">
+          <label class="form-label">🔑 家族同期コード（合言葉）</label>
+          <input type="text" class="form-control" id="syncRoomInput" placeholder="例: tanaka-family-77">
+          <div style="font-size: 0.72rem; color: #64748b; margin-top: 3px;">
+            ※ご家族で共通の合言葉を決めてください。同じ合言葉を入力した端末同士でデータが瞬時に共有されます。
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">🔥 Firebase設定（JSONまたはコードを貼付）</label>
+          <textarea class="form-control" id="syncFirebaseConfigInput" rows="5" placeholder='const firebaseConfig = {
+  apiKey: "...",
+  projectId: "...",
+  ...
+};'></textarea>
+          <div style="font-size: 0.72rem; color: #64748b; margin-top: 3px;">
+            Google Firebaseの無料プロジェクト設定をそのまま貼り付けてください。
+          </div>
+        </div>
+
+        <!-- 無料セットアップ案内 -->
+        <div style="background: #eff6ff; border: 1px dashed #93c5fd; border-radius: 10px; padding: 10px 12px; font-size: 0.75rem; color: #1e40af; margin-bottom: 14px; line-height: 1.45;">
+          📌 <strong>Firebase設定の無料取得手順（約2分）:</strong><br>
+          1. <a href="https://console.firebase.google.com/" target="_blank" style="color: #2563eb; font-weight: 700; text-decoration: underline;">Firebase Console</a> で「プロジェクトを追加」<br>
+          2. 左メニュー「Firestore Database」を作成（「テストモードで開始」）<br>
+          3. プロジェクト設定（歯車⚙️）→「マイアプリ」のWeb(&lt;/&gt;)から設定コードをコピー！
+        </div>
+
+        <!-- 家族への招待リンク生成（接続済み時に表示） -->
+        <div id="syncInviteBox" style="display:none; background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 10px; padding: 12px; margin-bottom: 14px;">
+          <div style="font-weight: 700; font-size: 0.8rem; color: #065f46; margin-bottom: 4px;">🔗 家族・パソコン共有用マジックリンク</div>
+          <div style="font-size: 0.72rem; color: #047857; margin-bottom: 8px;">
+            以下のリンクをご家族のLINEに送るかPCで開くと、Firebase設定や同期コードがすべて自動設定されて即座に同期が始まります！
+          </div>
+          <div style="display: flex; gap: 6px;">
+            <input type="text" class="form-control" id="syncInviteUrl" readonly style="font-size: 0.72rem; background: white;">
+            <button type="button" class="btn btn-primary" style="padding: 6px 12px; font-size: 0.75rem; white-space: nowrap;" onclick="copySyncInviteUrl()">コピー</button>
+          </div>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn btn-secondary" onclick="closeSyncModal()">閉じる</button>
+          <button class="btn btn-primary" id="saveSyncBtn" onclick="saveAndStartCloudSync()">接続＆同期スタート</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 同期トースト通知 -->
+    <div id="syncToast" class="sync-toast" style="display:none;">
+      <span>☁️</span> <span id="syncToastText">データを最新に同期しました</span>
+    </div>
+
   </div>
 
   <script>
@@ -2013,22 +2112,285 @@
       return `${year}-${month}-${day}`;
     };
 
+    // --- ☁️ クラウドリアルタイム自動同期エンジン (Firebase Firestore) ---
+    let firebaseDb = null;
+    let syncRoomId = localStorage.getItem('asuken_sync_room_id') || '';
+    let syncUnsubscribe = null;
+    let isApplyingRemoteChange = false;
+
+    function syncSetItem(key, val) {
+      const strVal = typeof val === 'string' ? val : JSON.stringify(val);
+      localStorage.setItem(key, strVal);
+      if (firebaseDb && syncRoomId && !isApplyingRemoteChange) {
+        try {
+          firebaseDb.collection('rooms').doc(syncRoomId).collection('data').doc(key).set({
+            val: strVal,
+            updatedAt: Date.now()
+          }).catch(err => console.warn('Cloud sync set error:', err));
+        } catch (e) {
+          console.warn('Sync error:', e);
+        }
+      }
+    }
+
+    function syncRemoveItem(key) {
+      localStorage.removeItem(key);
+      if (firebaseDb && syncRoomId && !isApplyingRemoteChange) {
+        try {
+          firebaseDb.collection('rooms').doc(syncRoomId).collection('data').doc(key).delete()
+            .catch(err => console.warn('Cloud sync remove error:', err));
+        } catch (e) {
+          console.warn('Sync error:', e);
+        }
+      }
+    }
+
+    function showSyncToast(text) {
+      const toast = document.getElementById('syncToast');
+      const toastText = document.getElementById('syncToastText');
+      if (!toast) return;
+      if (toastText) toastText.textContent = text;
+      toast.style.display = 'flex';
+      toast.style.opacity = '1';
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => toast.style.display = 'none', 300);
+      }, 2500);
+    }
+
+    function initCloudSync() {
+      const savedConfig = localStorage.getItem('asuken_sync_firebase_config');
+      syncRoomId = localStorage.getItem('asuken_sync_room_id') || '';
+
+      updateSyncUIStatus();
+
+      if (!savedConfig || !syncRoomId) return;
+
+      try {
+        let configObj = null;
+        if (typeof savedConfig === 'string') {
+          const jsonMatch = savedConfig.match(/\{[\s\S]*\}/);
+          if (jsonMatch) {
+            try {
+              configObj = new Function(`return ${jsonMatch[0]};`)();
+            } catch (err) {
+              const sanitized = jsonMatch[0]
+                .replace(/([a-zA-Z0-9_]+)\s*:/g, '"$1":')
+                .replace(/'/g, '"');
+              configObj = JSON.parse(sanitized);
+            }
+          }
+        }
+
+        if (!configObj || !configObj.projectId) {
+          console.warn('Invalid firebase config');
+          return;
+        }
+
+        if (!firebase.apps.length) {
+          firebase.initializeApp(configObj);
+        }
+        firebaseDb = firebase.firestore();
+
+        // リアルタイム変更リスナー起動
+        if (syncUnsubscribe) syncUnsubscribe();
+        syncUnsubscribe = firebaseDb.collection('rooms').doc(syncRoomId).collection('data')
+          .onSnapshot(snapshot => {
+            let changeCount = 0;
+            isApplyingRemoteChange = true;
+            snapshot.docChanges().forEach(change => {
+              const k = change.doc.id;
+              if (change.type === 'removed') {
+                if (localStorage.getItem(k) !== null) {
+                  localStorage.removeItem(k);
+                  changeCount++;
+                }
+              } else {
+                const v = change.doc.data().val;
+                if (localStorage.getItem(k) !== v) {
+                  localStorage.setItem(k, v);
+                  changeCount++;
+                }
+              }
+            });
+            isApplyingRemoteChange = false;
+
+            if (changeCount > 0) {
+              showSyncToast('☁️ データを最新に同期しました');
+              renderFamilyBar();
+              renderDayData();
+              renderWeightChart();
+              renderBpChart();
+            }
+          }, err => {
+            console.warn('Firestore snapshot error:', err);
+            updateSyncUIStatus(false, '接続エラー: ' + err.message);
+          });
+
+        updateSyncUIStatus(true);
+      } catch (err) {
+        console.error('Firebase init error:', err);
+        updateSyncUIStatus(false, err.message);
+      }
+    }
+
+    function updateSyncUIStatus(isConnected, errMsg) {
+      const dot = document.getElementById('syncDot');
+      const btnText = document.getElementById('syncBtnText');
+      const bDot = document.getElementById('syncBannerDot');
+      const bText = document.getElementById('syncBannerStatusText');
+      const disBtn = document.getElementById('disconnectSyncBtn');
+      const invBox = document.getElementById('syncInviteBox');
+      const invUrl = document.getElementById('syncInviteUrl');
+
+      const active = isConnected ?? (!!firebaseDb && !!syncRoomId);
+
+      if (active) {
+        if (dot) dot.style.background = '#22c55e';
+        if (btnText) btnText.textContent = '☁️ 同期中';
+        if (bDot) bDot.style.background = '#22c55e';
+        if (bText) bText.innerHTML = `<strong style="color:#15803d;">接続中（合言葉: ${syncRoomId}）</strong>`;
+        if (disBtn) disBtn.style.display = 'inline';
+        if (invBox) {
+          invBox.style.display = 'block';
+          const cfg = localStorage.getItem('asuken_sync_firebase_config') || '';
+          const keyParam = geminiApiKey ? `&key=${encodeURIComponent(geminiApiKey)}` : '';
+          const cfgParam = cfg ? `&fb=${encodeURIComponent(cfg)}` : '';
+          const magicUrl = `${window.location.origin}${window.location.pathname}#room=${encodeURIComponent(syncRoomId)}${keyParam}${cfgParam}`;
+          if (invUrl) invUrl.value = magicUrl;
+        }
+      } else {
+        if (dot) dot.style.background = '#94a3b8';
+        if (btnText) btnText.textContent = '☁️ 同期';
+        if (bDot) bDot.style.background = '#94a3b8';
+        if (bText) bText.textContent = errMsg ? `⚠️ ${errMsg}` : '未接続（この端末内のみ保存中）';
+        if (disBtn) disBtn.style.display = 'none';
+        if (invBox) invBox.style.display = 'none';
+      }
+    }
+
+    function openSyncModal() {
+      const room = localStorage.getItem('asuken_sync_room_id') || '';
+      const cfg = localStorage.getItem('asuken_sync_firebase_config') || '';
+      document.getElementById('syncRoomInput').value = room;
+      document.getElementById('syncFirebaseConfigInput').value = cfg;
+      updateSyncUIStatus();
+      document.getElementById('syncModal').classList.add('active');
+    }
+
+    function closeSyncModal() {
+      document.getElementById('syncModal').classList.remove('active');
+    }
+
+    async function pushAllLocalDataToCloud() {
+      if (!firebaseDb || !syncRoomId) return;
+      const batch = firebaseDb.batch();
+      let count = 0;
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (k && k.startsWith('asuken_') && !k.includes('sync_')) {
+          const ref = firebaseDb.collection('rooms').doc(syncRoomId).collection('data').doc(k);
+          batch.set(ref, { val: localStorage.getItem(k), updatedAt: Date.now() });
+          count++;
+        }
+      }
+      if (count > 0) {
+        await batch.commit();
+        showSyncToast(`☁️ ${count}件の既存データをクラウドに同期しました`);
+      }
+    }
+
+    async function saveAndStartCloudSync() {
+      const room = document.getElementById('syncRoomInput').value.trim();
+      const cfg = document.getElementById('syncFirebaseConfigInput').value.trim();
+
+      if (!room) {
+        alert('家族同期コード（合言葉）を入力してください\n例: tanaka-family-77');
+        return;
+      }
+      if (!cfg) {
+        alert('Firebase設定を貼り付けてください');
+        return;
+      }
+
+      localStorage.setItem('asuken_sync_room_id', room);
+      localStorage.setItem('asuken_sync_firebase_config', cfg);
+      syncRoomId = room;
+
+      const saveBtn = document.getElementById('saveSyncBtn');
+      if (saveBtn) saveBtn.textContent = '接続テスト中...';
+
+      initCloudSync();
+
+      setTimeout(async () => {
+        if (saveBtn) saveBtn.textContent = '接続＆同期スタート';
+        if (firebaseDb) {
+          await pushAllLocalDataToCloud();
+          alert('クラウド同期に接続しました！\nこれでiPhoneやパソコン間でリアルタイムに自動同期されます。');
+          closeSyncModal();
+        }
+      }, 1200);
+    }
+
+    function disconnectCloudSync() {
+      if (!confirm('クラウド同期を切断しますか？\n（※端末内のデータはそのまま残ります）')) return;
+      if (syncUnsubscribe) syncUnsubscribe();
+      syncUnsubscribe = null;
+      firebaseDb = null;
+      syncRoomId = '';
+      localStorage.removeItem('asuken_sync_room_id');
+      localStorage.removeItem('asuken_sync_firebase_config');
+      updateSyncUIStatus(false);
+      showSyncToast('クラウド同期を切断しました');
+    }
+
+    function copySyncInviteUrl() {
+      const invUrl = document.getElementById('syncInviteUrl');
+      if (!invUrl || !invUrl.value) return;
+      navigator.clipboard.writeText(invUrl.value).then(() => {
+        alert('家族共有用マジックリンクをコピーしました！\nご家族のLINEやメールに送信するか、パソコンのブラウザで開いてください。');
+      }).catch(() => {
+        invUrl.select();
+        document.execCommand('copy');
+        alert('リンクをコピーしました！');
+      });
+    }
+
     // 初期化
     function loadUserData() {
-      // URLハッシュやパラメータからAPIキーを自動読み取り＆保存 (例: https://...#key=AQ.xxxx)
+      // URLハッシュやパラメータからAPIキー・同期コード・Firebase設定を自動取得＆保存 (マジックリンク)
       try {
-        const hashMatch = window.location.hash.match(/key=([^&]+)/);
-        const searchMatch = window.location.search.match(/key=([^&]+)/);
-        const urlKey = hashMatch ? decodeURIComponent(hashMatch[1]) : (searchMatch ? decodeURIComponent(searchMatch[1]) : null);
-        if (urlKey && (urlKey.startsWith('AQ.') || urlKey.startsWith('AIza'))) {
-          geminiApiKey = urlKey;
-          localStorage.setItem('asuken_gemini_api_key', urlKey);
-          // アドレスバーからキーを非表示にして安全性を確保
+        const hash = window.location.hash || window.location.search;
+        const keyMatch = hash.match(/key=([^&]+)/);
+        const roomMatch = hash.match(/room=([^&]+)/);
+        const fbMatch = hash.match(/fb=([^&]+)/);
+
+        if (keyMatch) {
+          const k = decodeURIComponent(keyMatch[1]);
+          if (k.startsWith('AQ.') || k.startsWith('AIza')) {
+            geminiApiKey = k;
+            localStorage.setItem('asuken_gemini_api_key', k);
+          }
+        }
+        if (roomMatch) {
+          const r = decodeURIComponent(roomMatch[1]);
+          localStorage.setItem('asuken_sync_room_id', r);
+          syncRoomId = r;
+        }
+        if (fbMatch) {
+          const fbRaw = decodeURIComponent(fbMatch[1]);
+          localStorage.setItem('asuken_sync_firebase_config', fbRaw);
+        }
+
+        if (keyMatch || roomMatch || fbMatch) {
+          // アドレスバーからハッシュを非表示にして安全性を確保
           history.replaceState(null, '', window.location.pathname);
         }
       } catch (e) {
-        console.warn('URL key parse:', e);
+        console.warn('URL param parse:', e);
       }
+
+      initCloudSync();
 
       // APIキー初期化 (有効なキーがあればセット)
       const storedKey = localStorage.getItem('asuken_gemini_api_key');
@@ -2091,7 +2453,7 @@
 
     function switchUser(userId) {
       currentUserId = userId;
-      localStorage.setItem('asuken_current_user_id', userId);
+      syncSetItem('asuken_current_user_id', userId);
       renderFamilyBar();
       updateTargetsDisplay();
       renderDayData();
@@ -2142,7 +2504,7 @@
         targetWeight: weight,
         targetCal: cal
       });
-      localStorage.setItem('asuken_family_members', JSON.stringify(familyMembers));
+      syncSetItem('asuken_family_members', JSON.stringify(familyMembers));
 
       closeFamilyModal();
       switchUser(newId);
@@ -2276,7 +2638,7 @@
       const uid = currentUserId;
       let val = parseInt(localStorage.getItem(`asuken_${uid}_water_${key}`) || '0');
       val = Math.max(0, val + amount);
-      localStorage.setItem(`asuken_${uid}_water_${key}`, val);
+      syncSetItem(`asuken_${uid}_water_${key}`, val);
       renderWaterDayData();
     }
 
@@ -2287,7 +2649,7 @@
       if (input !== null) {
         const parsed = parseInt(input.replace(/[^0-9]/g, ''));
         if (parsed && parsed >= 500 && parsed <= 5000) {
-          localStorage.setItem(`asuken_${uid}_water_goal`, parsed);
+          syncSetItem(`asuken_${uid}_water_goal`, parsed);
           renderWaterDayData();
         } else if (input.trim() !== '') {
           alert('500ml〜5000mlの範囲で数値を入力してください');
@@ -2356,7 +2718,7 @@
     }
 
     function saveMedsMaster(uid, list) {
-      localStorage.setItem(`asuken_${uid}_meds_master`, JSON.stringify(list));
+      syncSetItem(`asuken_${uid}_meds_master`, JSON.stringify(list));
     }
 
     function getMedsCheckedMap(uid, dateKey) {
@@ -2372,7 +2734,7 @@
       const key = getDateKey(currentDate);
       const map = getMedsCheckedMap(uid, key);
       map[medId] = !map[medId];
-      localStorage.setItem(`asuken_${uid}_meds_checked_${key}`, JSON.stringify(map));
+      syncSetItem(`asuken_${uid}_meds_checked_${key}`, JSON.stringify(map));
       renderMedsDayData();
     }
 
@@ -3052,8 +3414,8 @@
       const val = document.getElementById('weightInput').value;
       const key = getDateKey(currentDate);
       const uid = currentUserId;
-      if (val) localStorage.setItem(`asuken_${uid}_weight_${key}`, val);
-      else localStorage.removeItem(`asuken_${uid}_weight_${key}`);
+      if (val) syncSetItem(`asuken_${uid}_weight_${key}`, val);
+      else syncRemoveItem(`asuken_${uid}_weight_${key}`);
       renderWeightChart();
       renderDayData();
     }
@@ -3062,8 +3424,8 @@
       const val = document.getElementById('fatInput').value;
       const key = getDateKey(currentDate);
       const uid = currentUserId;
-      if (val) localStorage.setItem(`asuken_${uid}_fat_${key}`, val);
-      else localStorage.removeItem(`asuken_${uid}_fat_${key}`);
+      if (val) syncSetItem(`asuken_${uid}_fat_${key}`, val);
+      else syncRemoveItem(`asuken_${uid}_fat_${key}`);
       renderDayData();
     }
 
@@ -3368,9 +3730,9 @@
         return;
       }
 
-      localStorage.setItem(`asuken_${uid}_weight_${dateVal}`, wVal);
-      if (fVal) localStorage.setItem(`asuken_${uid}_fat_${dateVal}`, fVal);
-      else localStorage.removeItem(`asuken_${uid}_fat_${dateVal}`);
+      syncSetItem(`asuken_${uid}_weight_${dateVal}`, wVal);
+      if (fVal) syncSetItem(`asuken_${uid}_fat_${dateVal}`, fVal);
+      else syncRemoveItem(`asuken_${uid}_fat_${dateVal}`);
 
       renderDayData();
       renderWeightChart();
@@ -3554,7 +3916,7 @@
         date: dateVal
       };
 
-      localStorage.setItem(`asuken_${currentUserId}_bp_${dateVal}`, JSON.stringify(bpObj));
+      syncSetItem(`asuken_${currentUserId}_bp_${dateVal}`, JSON.stringify(bpObj));
       renderDayData();
       renderBpChart();
 
@@ -3712,7 +4074,7 @@
         items.push(newMeal);
         currentEditingMealIndex = items.length - 1;
       }
-      localStorage.setItem(storageKey, JSON.stringify(items));
+      syncSetItem(storageKey, JSON.stringify(items));
       renderDayData();
 
       const typeNames = { breakfast: '朝食', lunch: '昼食', dinner: '夕食', snack: '間食・夜食' };
@@ -3755,7 +4117,7 @@
       const storageKey = `asuken_${uid}_meals_${key}_${type}`;
       const items = JSON.parse(localStorage.getItem(storageKey) || '[]');
       items.splice(index, 1);
-      localStorage.setItem(storageKey, JSON.stringify(items));
+      syncSetItem(storageKey, JSON.stringify(items));
       renderDayData();
     }
 
@@ -3842,7 +4204,7 @@
         carb: Math.round((c * 0.60) / 4)
       };
 
-      localStorage.setItem(`asuken_${currentUserId}_targets`, JSON.stringify(newTargets));
+      syncSetItem(`asuken_${currentUserId}_targets`, JSON.stringify(newTargets));
       
       // familyMembersの身体プロファイルも更新
       const u = getCurrentUser();
@@ -3852,7 +4214,7 @@
       u.activity = activity;
       u.targetWeight = w;
       u.targetCal = c;
-      localStorage.setItem('asuken_family_members', JSON.stringify(familyMembers));
+      syncSetItem('asuken_family_members', JSON.stringify(familyMembers));
 
       updateTargetsDisplay();
       closeTargetModal();
