@@ -66,42 +66,43 @@
     header {
       background: linear-gradient(135deg, #ff7a3d, #f65828);
       color: white;
-      padding: 16px 20px 18px;
+      padding: 10px 14px 10px;
       position: sticky;
       top: 0;
-      z-index: 10;
-      border-radius: 0 0 24px 24px;
-      box-shadow: 0 4px 15px rgba(246, 114, 50, 0.25);
+      z-index: 30;
+      border-radius: 0 0 18px 18px;
+      box-shadow: 0 4px 12px rgba(246, 114, 50, 0.2);
     }
 
     .header-top {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 10px;
+      margin-bottom: 6px;
     }
 
     .header-title {
-      font-size: 1.25rem;
+      font-size: 1.05rem;
       font-weight: 800;
       letter-spacing: 0.5px;
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
     }
 
     .header-actions {
       display: flex;
-      gap: 6px;
+      align-items: center;
+      gap: 5px;
     }
 
     .header-btn {
-      background: rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.22);
       border: none;
       color: white;
-      border-radius: 20px;
-      padding: 6px 11px;
-      font-size: 0.78rem;
+      border-radius: 16px;
+      padding: 4px 10px;
+      font-size: 0.74rem;
       font-weight: 700;
       cursor: pointer;
       backdrop-filter: blur(4px);
@@ -109,16 +110,61 @@
       display: flex;
       align-items: center;
       gap: 4px;
+      white-space: nowrap;
     }
-    .header-btn:hover { background: rgba(255,255,255,0.3); }
+    .header-btn:hover { background: rgba(255,255,255,0.32); }
+
+    /* 設定ドロップダウンメニュー */
+    .header-dropdown-wrap {
+      position: relative;
+    }
+    .header-dropdown-menu {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: calc(100% + 6px);
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      min-width: 220px;
+      z-index: 100;
+      overflow: hidden;
+      border: 1px solid #e2e8f0;
+    }
+    .header-dropdown-menu.active {
+      display: block;
+      animation: fadeIn 0.15s ease-out;
+    }
+    .dropdown-item {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      padding: 10px 14px;
+      background: none;
+      border: none;
+      border-bottom: 1px solid #f1f5f9;
+      text-align: left;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #334155;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .dropdown-item:last-child {
+      border-bottom: none;
+    }
+    .dropdown-item:hover, .dropdown-item:active {
+      background: #f8fafc;
+      color: var(--primary);
+    }
 
     /* 👨‍👩‍👧 家族切り替えセレクター */
     .family-bar-container {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
       overflow-x: auto;
-      padding-bottom: 8px;
+      padding-bottom: 4px;
       scrollbar-width: none;
     }
     .family-bar-container::-webkit-scrollbar { display: none; }
@@ -127,29 +173,29 @@
       background: rgba(255, 255, 255, 0.2);
       color: white;
       border: none;
-      border-radius: 20px;
-      padding: 5px 12px;
-      font-size: 0.8rem;
+      border-radius: 14px;
+      padding: 3px 10px;
+      font-size: 0.74rem;
       font-weight: 700;
       cursor: pointer;
       white-space: nowrap;
       display: flex;
       align-items: center;
-      gap: 5px;
+      gap: 4px;
       transition: all 0.2s;
     }
     .family-pill.active {
       background: white;
       color: var(--primary-dark);
-      box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.12);
     }
     .family-add-btn {
       background: rgba(255, 255, 255, 0.15);
       border: 1px dashed rgba(255, 255, 255, 0.5);
       color: white;
-      border-radius: 20px;
-      padding: 5px 10px;
-      font-size: 0.75rem;
+      border-radius: 14px;
+      padding: 3px 8px;
+      font-size: 0.7rem;
       cursor: pointer;
       white-space: nowrap;
     }
@@ -159,19 +205,20 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: rgba(255, 255, 255, 0.15);
-      border-radius: 30px;
-      padding: 4px 10px;
+      background: rgba(255, 255, 255, 0.16);
+      border-radius: 20px;
+      padding: 2px 8px;
+      margin-top: 2px;
     }
 
     .date-btn {
       background: transparent;
       border: none;
       color: white;
-      font-size: 1.1rem;
+      font-size: 0.95rem;
       cursor: pointer;
-      width: 32px;
-      height: 32px;
+      width: 26px;
+      height: 26px;
       border-radius: 50%;
       display: flex;
       align-items: center;
@@ -181,16 +228,16 @@
 
     .current-date {
       font-weight: 700;
-      font-size: 0.95rem;
+      font-size: 0.84rem;
     }
 
     /* メインコンテンツ */
     main {
       flex: 1;
-      padding: 16px;
+      padding: 10px 12px;
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 10px;
       padding-bottom: 80px;
     }
 
@@ -198,39 +245,85 @@
     .advisor-card {
       background: var(--primary-light);
       border: 1px solid #fed7aa;
-      border-radius: var(--radius);
-      padding: 16px;
+      border-radius: 14px;
+      padding: 8px 12px;
       display: flex;
-      gap: 14px;
+      gap: 10px;
       align-items: center;
       position: relative;
     }
 
     .advisor-avatar {
-      width: 68px;
-      height: 68px;
+      width: 44px;
+      height: 44px;
       border-radius: 50%;
       background: white;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.06);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 2.2rem;
+      font-size: 1.5rem;
       flex-shrink: 0;
       position: relative;
     }
 
     .score-badge {
       position: absolute;
-      bottom: -6px;
-      right: -6px;
+      bottom: -4px;
+      right: -4px;
       background: var(--primary);
       color: white;
-      font-size: 0.72rem;
+      font-size: 0.65rem;
       font-weight: 800;
-      padding: 2px 7px;
-      border-radius: 10px;
-      border: 2px solid white;
+      padding: 1px 5px;
+      border-radius: 8px;
+      border: 1.5px solid white;
+    }
+
+    /* プルダウン・折りたたみテーブルスタイル */
+    .collapsible-toggle-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #475569;
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.15s ease;
+    }
+    .collapsible-toggle-bar:hover, .collapsible-toggle-bar:active {
+      background: #f1f5f9;
+      color: #1e293b;
+    }
+    .collapsible-toggle-bar .toggle-icon {
+      font-size: 0.8rem;
+      transition: transform 0.2s ease;
+      color: #64748b;
+    }
+    .collapsible-toggle-bar.open .toggle-icon {
+      transform: rotate(180deg);
+    }
+    .collapsible-content {
+      display: none;
+    }
+    .collapsible-content.open {
+      display: block;
+      animation: fadeIn 0.2s ease-out;
+    }
+    .section-toggle-btn {
+      font-size: 0.7rem;
+      font-weight: 700;
+      background: #e0f2fe;
+      color: #0369a1;
+      padding: 3px 8px;
+      border-radius: 12px;
+      white-space: nowrap;
+      transition: background 0.15s;
     }
 
     .advisor-speech {
@@ -1309,16 +1402,26 @@
     <header>
       <div class="header-top">
         <div class="header-title">
-          <span>🥗</span> 健康管理アプリ <span style="font-size: 0.72rem; font-weight: 700; background: rgba(255,255,255,0.28); padding: 2px 7px; border-radius: 999px; margin-left: 6px; letter-spacing: 0.5px;">ver.1</span>
+          <span>🥗</span> 健康管理
         </div>
         <div class="header-actions">
-          <button class="header-btn" id="cloudSyncBtn" onclick="openSyncModal()" style="display: flex; align-items: center; gap: 5px;">
-            <span id="syncDot" style="width: 7px; height: 7px; border-radius: 50%; background: #94a3b8; display: inline-block;"></span>
-            <span id="syncBtnText">☁️ 同期</span>
-          </button>
-          <button class="header-btn" onclick="openReportModal()">📄 医師用レポート</button>
-          <button class="header-btn" onclick="openApiKeyModal()">🤖 AI設定</button>
           <button class="header-btn" onclick="openTargetModal()">🎯 目標</button>
+          <div class="header-dropdown-wrap">
+            <button class="header-btn" id="headerMenuBtn" onclick="toggleHeaderMenu(event)">
+              <span id="syncDot" style="width: 7px; height: 7px; border-radius: 50%; background: #94a3b8; display: inline-block;"></span>
+              <span>⚙️ 設定 ▾</span>
+            </button>
+            <div class="header-dropdown-menu" id="headerDropdownMenu">
+              <button type="button" class="dropdown-item" onclick="openSyncModal(); closeHeaderMenu();">
+                <span id="dropdownSyncDot" style="width: 7px; height: 7px; border-radius: 50%; background: #94a3b8; display: inline-block; margin-right: 6px;"></span>
+                ☁️ クラウド同期・合言葉
+              </button>
+              <button type="button" class="dropdown-item" onclick="openReportModal(); closeHeaderMenu();">📄 医師用レポート・血圧手帳</button>
+              <button type="button" class="dropdown-item" onclick="openApiKeyModal(); closeHeaderMenu();">🤖 AI画像認識・API設定</button>
+              <button type="button" class="dropdown-item" onclick="openTargetModal(); closeHeaderMenu();">🎯 目標・プロフィール設定</button>
+              <button type="button" class="dropdown-item" onclick="openFamilyModal(); closeHeaderMenu();">👨‍👩‍👧 家族メンバー管理</button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -1330,7 +1433,7 @@
       <!-- 日付ナビ -->
       <div class="date-nav">
         <button class="date-btn" onclick="changeDate(-1)">◀</button>
-        <div class="current-date" id="dateDisplay">2026年10月20日 (火)</div>
+        <div class="current-date" id="dateDisplay">2026年10月25日 (日)</div>
         <button class="date-btn" onclick="changeDate(1)">▶</button>
       </div>
     </header>
@@ -1353,37 +1456,42 @@
 
       <!-- 🧬 身長・年齢からの健康度 & カラダ年齢カード -->
       <section class="health-stats-card">
-        <div class="body-age-banner">
+        <div class="body-age-banner" onclick="toggleSectionTable('healthMetricsCollapse', this)" style="cursor: pointer; margin-bottom: 0;">
           <div class="body-age-info">
             <span class="body-age-label">🧬 推定カラダ年齢</span>
             <span class="body-age-real" id="bodyRealAgeDisplay">実年齢: 40歳 / 身長: 172cm</span>
           </div>
-          <div class="body-age-val-box">
-            <span class="body-age-val" id="bodyAgeVal">36</span><span style="font-size: 0.85rem; font-weight: 800; color: #059669;">歳</span>
-            <span class="body-age-diff" id="bodyAgeDiff" style="color: #059669;">(-4歳 ✨)</span>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <div class="body-age-val-box">
+              <span class="body-age-val" id="bodyAgeVal">36</span><span style="font-size: 0.85rem; font-weight: 800; color: #059669;">歳</span>
+              <span class="body-age-diff" id="bodyAgeDiff" style="color: #059669;">(-4歳 ✨)</span>
+            </div>
+            <span class="section-toggle-btn" id="healthMetricsCollapseToggle">📊 表を見る ▾</span>
           </div>
         </div>
 
-        <div class="health-metrics-grid">
-          <div class="health-metric-box">
-            <div class="metric-label">BMI (体格)</div>
-            <div class="metric-value" id="bmiVal">22.0</div>
-            <div class="metric-sub" id="bmiStatus">普通体重</div>
-          </div>
-          <div class="health-metric-box">
-            <div class="metric-label">適正体重</div>
-            <div class="metric-value" id="idealWeightVal">65.1<span style="font-size:0.65rem;">kg</span></div>
-            <div class="metric-sub" id="idealWeightDiff">差: 0.0kg</div>
-          </div>
-          <div class="health-metric-box">
-            <div class="metric-label">基礎代謝 (BMR)</div>
-            <div class="metric-value" id="bmrVal">1520<span style="font-size:0.65rem;">kcal</span></div>
-            <div class="metric-sub">安静時消費</div>
-          </div>
-          <div class="health-metric-box">
-            <div class="metric-label">消費目安 (TDEE)</div>
-            <div class="metric-value" id="tdeeVal">2280<span style="font-size:0.65rem;">kcal</span></div>
-            <div class="metric-sub">活動時消費</div>
+        <div id="healthMetricsCollapse" class="collapsible-content">
+          <div class="health-metrics-grid" style="margin-top: 10px;">
+            <div class="health-metric-box">
+              <div class="metric-label">BMI (体格)</div>
+              <div class="metric-value" id="bmiVal">22.0</div>
+              <div class="metric-sub" id="bmiStatus">普通体重</div>
+            </div>
+            <div class="health-metric-box">
+              <div class="metric-label">適正体重</div>
+              <div class="metric-value" id="idealWeightVal">65.1<span style="font-size:0.65rem;">kg</span></div>
+              <div class="metric-sub" id="idealWeightDiff">差: 0.0kg</div>
+            </div>
+            <div class="health-metric-box">
+              <div class="metric-label">基礎代謝 (BMR)</div>
+              <div class="metric-value" id="bmrVal">1520<span style="font-size:0.65rem;">kcal</span></div>
+              <div class="metric-sub">安静時消費</div>
+            </div>
+            <div class="health-metric-box">
+              <div class="metric-label">消費目安 (TDEE)</div>
+              <div class="metric-value" id="tdeeVal">2280<span style="font-size:0.65rem;">kcal</span></div>
+              <div class="metric-sub">活動時消費</div>
+            </div>
           </div>
         </div>
       </section>
@@ -1416,30 +1524,36 @@
           </div>
         </div>
 
-        <!-- PFCバランス -->
-        <div class="pfc-container">
-          <div class="pfc-row">
-            <span class="pfc-name" style="color: #3182ce;">たんぱく質</span>
-            <div class="pfc-bar-bg">
-              <div class="pfc-bar-fill bar-protein" id="pBar" style="width: 0%;"></div>
+        <!-- PFCバランス (プルダウン折りたたみ) -->
+        <div class="collapsible-toggle-bar" onclick="toggleSectionTable('pfcCollapse', this)" style="margin-top: 10px;">
+          <span>📊 PFC栄養素バランス表 (タンパク質・脂質・炭水化物)</span>
+          <span class="toggle-icon">▾</span>
+        </div>
+        <div id="pfcCollapse" class="collapsible-content">
+          <div class="pfc-container" style="margin-top: 8px; border-top: none; padding-top: 0;">
+            <div class="pfc-row">
+              <span class="pfc-name" style="color: #3182ce;">たんぱく質</span>
+              <div class="pfc-bar-bg">
+                <div class="pfc-bar-fill bar-protein" id="pBar" style="width: 0%;"></div>
+              </div>
+              <span class="pfc-val" id="pVal">0g / 75g</span>
             </div>
-            <span class="pfc-val" id="pVal">0g / 75g</span>
-          </div>
 
-          <div class="pfc-row">
-            <span class="pfc-name" style="color: #dd6b20;">脂質</span>
-            <div class="pfc-bar-bg">
-              <div class="pfc-bar-fill bar-fat" id="fBar" style="width: 0%;"></div>
+            <div class="pfc-row">
+              <span class="pfc-name" style="color: #dd6b20;">脂質</span>
+              <div class="pfc-bar-bg">
+                <div class="pfc-bar-fill bar-fat" id="fBar" style="width: 0%;"></div>
+              </div>
+              <span class="pfc-val" id="fVal">0g / 55g</span>
             </div>
-            <span class="pfc-val" id="fVal">0g / 55g</span>
-          </div>
 
-          <div class="pfc-row">
-            <span class="pfc-name" style="color: #38a169;">炭水化物</span>
-            <div class="pfc-bar-bg">
-              <div class="pfc-bar-fill bar-carb" id="cBar" style="width: 0%;"></div>
+            <div class="pfc-row">
+              <span class="pfc-name" style="color: #38a169;">炭水化物</span>
+              <div class="pfc-bar-bg">
+                <div class="pfc-bar-fill bar-carb" id="cBar" style="width: 0%;"></div>
+              </div>
+              <span class="pfc-val" id="cVal">0g / 280g</span>
             </div>
-            <span class="pfc-val" id="cVal">0g / 280g</span>
           </div>
         </div>
       </section>
@@ -1594,19 +1708,25 @@
           </div>
         </div>
 
-        <!-- 本日の血圧測定履歴リスト (1日何回でもOK) -->
-        <div id="bpHistoryList" style="margin-top: 10px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 6px;"></div>
-
-        <div style="font-size: 0.72rem; color: var(--text-muted); margin-bottom: 6px; display: flex; justify-content: space-between;">
-          <span>過去7日間の推移（基準値: 135/85 mmHg未満）</span>
-          <span>🔴最高 / 🔵最低</span>
+        <!-- 本日の血圧測定履歴 & グラフ (プルダウン) -->
+        <div class="collapsible-toggle-bar" onclick="toggleSectionTable('bpDetailsCollapse', this)" style="margin-top: 10px;">
+          <span id="bpHistoryToggleLabel">📋 測定履歴 & 過去7日間の推移グラフ</span>
+          <span class="toggle-icon">▾</span>
         </div>
-        <div class="chart-container" style="height: 160px;">
-          <canvas id="bpChart"></canvas>
+        <div id="bpDetailsCollapse" class="collapsible-content">
+          <div id="bpHistoryList" style="margin-top: 8px; margin-bottom: 10px; display: flex; flex-direction: column; gap: 6px;"></div>
+
+          <div style="font-size: 0.72rem; color: var(--text-muted); margin-bottom: 6px; display: flex; justify-content: space-between;">
+            <span>過去7日間の推移（基準値: 135/85 mmHg未満）</span>
+            <span>🔴最高 / 🔵最低</span>
+          </div>
+          <div class="chart-container" style="height: 160px;">
+            <canvas id="bpChart"></canvas>
+          </div>
         </div>
 
         <!-- 医師提出用レポート出力ボタン -->
-        <div style="margin-top: 12px; display: flex; justify-content: flex-end;">
+        <div style="margin-top: 10px; display: flex; justify-content: flex-end;">
           <button type="button" class="report-trigger-btn" onclick="openReportModal()">
             <span>📄</span> 医師提出用の血圧手帳レポートを出力 / 印刷
           </button>
@@ -1615,7 +1735,7 @@
 
       <!-- 体重・体脂肪記録 & グラフ -->
       <section class="card weight-card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
           <div class="meal-title-group">
             <span style="font-size: 1.2rem;">⚖️</span>
             <span style="font-weight: 800; font-size: 0.95rem;">体重・体脂肪の推移</span>
@@ -1623,13 +1743,6 @@
           <button class="weight-scan-btn" onclick="openWeightModal()">
             <span>📷</span> 写真 / 手動で記録
           </button>
-        </div>
-
-        <!-- 期間切り替えタブ -->
-        <div class="period-tab-group">
-          <button type="button" class="period-tab-btn active" id="tab-period-week" onclick="setWeightPeriod('week')">📅 1週間</button>
-          <button type="button" class="period-tab-btn" id="tab-period-month" onclick="setWeightPeriod('month')">📆 1ヶ月</button>
-          <button type="button" class="period-tab-btn" id="tab-period-year" onclick="setWeightPeriod('year')">📈 1年</button>
         </div>
 
         <div class="weight-row">
@@ -1645,16 +1758,29 @@
           </div>
         </div>
 
-        <!-- 本日の体重測定履歴リスト (1日何回でもOK) -->
-        <div id="weightHistoryList" style="margin-top: 10px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 6px;"></div>
-
-        <div style="font-size: 0.72rem; color: var(--text-muted); margin-bottom: 4px; display: flex; justify-content: space-between;">
-          <span id="weightChartLabel">過去7日間の推移</span>
-          <span id="targetWeightDisplay">目標: 60.0 kg</span>
+        <!-- 本日の体重測定履歴 & グラフ (プルダウン) -->
+        <div class="collapsible-toggle-bar" onclick="toggleSectionTable('weightDetailsCollapse', this)" style="margin-top: 10px;">
+          <span id="weightHistoryToggleLabel">📋 測定履歴 & 期間推移グラフ</span>
+          <span class="toggle-icon">▾</span>
         </div>
+        <div id="weightDetailsCollapse" class="collapsible-content">
+          <div id="weightHistoryList" style="margin-top: 8px; margin-bottom: 10px; display: flex; flex-direction: column; gap: 6px;"></div>
 
-        <div class="chart-container">
-          <canvas id="weightChart"></canvas>
+          <!-- 期間切り替えタブ -->
+          <div class="period-tab-group" style="margin-bottom: 8px;">
+            <button type="button" class="period-tab-btn active" id="tab-period-week" onclick="setWeightPeriod('week')">📅 1週間</button>
+            <button type="button" class="period-tab-btn" id="tab-period-month" onclick="setWeightPeriod('month')">📆 1ヶ月</button>
+            <button type="button" class="period-tab-btn" id="tab-period-year" onclick="setWeightPeriod('year')">📈 1年</button>
+          </div>
+
+          <div style="font-size: 0.72rem; color: var(--text-muted); margin-bottom: 4px; display: flex; justify-content: space-between;">
+            <span id="weightChartLabel">過去7日間の推移</span>
+            <span id="targetWeightDisplay">目標: 60.0 kg</span>
+          </div>
+
+          <div class="chart-container">
+            <canvas id="weightChart"></canvas>
+          </div>
         </div>
       </section>
     </main>
@@ -2463,6 +2589,8 @@
       const invUrl = document.getElementById('syncInviteUrl');
 
       const active = isConnected ?? (!!firebaseDb && !!syncRoomId);
+      const dropDot = document.getElementById('dropdownSyncDot');
+      if (dropDot) dropDot.style.background = active ? '#22c55e' : '#94a3b8';
 
       if (active) {
         if (dot) dot.style.background = '#22c55e';
@@ -2485,6 +2613,49 @@
         if (bText) bText.textContent = errMsg ? `⚠️ ${errMsg}` : '未接続（この端末内のみ保存中）';
         if (disBtn) disBtn.style.display = 'none';
         if (invBox) invBox.style.display = 'none';
+      }
+    }
+
+    // --- ⚙️ ヘッダードロップダウンメニュー ---
+    function toggleHeaderMenu(e) {
+      if (e) e.stopPropagation();
+      const menu = document.getElementById('headerDropdownMenu');
+      if (menu) menu.classList.toggle('active');
+    }
+
+    function closeHeaderMenu() {
+      const menu = document.getElementById('headerDropdownMenu');
+      if (menu) menu.classList.remove('active');
+    }
+
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.header-dropdown-wrap')) {
+        closeHeaderMenu();
+      }
+    });
+
+    // --- 📊 テーブル・詳細項目のプルダウン開閉 ---
+    function toggleSectionTable(id, triggerEl) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const isOpen = el.classList.toggle('open');
+      if (triggerEl) {
+        triggerEl.classList.toggle('open', isOpen);
+        const icon = triggerEl.querySelector('.toggle-icon') || triggerEl.querySelector('.section-toggle-btn');
+        if (icon) {
+          if (icon.classList.contains('section-toggle-btn')) {
+            icon.textContent = isOpen ? '📊 表を閉じる ▴' : '📊 表を見る ▾';
+          } else {
+            icon.textContent = isOpen ? '▴' : '▾';
+          }
+        }
+      }
+      // グラフが含まれる場合リサイズ
+      if (isOpen) {
+        setTimeout(() => {
+          if (id === 'bpDetailsCollapse' && bpChart) bpChart.resize();
+          if (id === 'weightDetailsCollapse' && weightChart) weightChart.resize();
+        }, 50);
       }
     }
 
@@ -2917,6 +3088,12 @@
       // 体重
       const weightList = getWeightList(uid, key);
       const wHistoryEl = document.getElementById('weightHistoryList');
+      const wToggleLabel = document.getElementById('weightHistoryToggleLabel');
+      if (wToggleLabel) {
+        wToggleLabel.textContent = weightList.length > 0
+          ? `📋 測定履歴 & 期間推移グラフ (${weightList.length}回記録済)`
+          : '📋 測定履歴 & 期間推移グラフ (詳細)';
+      }
       if (weightList.length > 0) {
         const latestW = weightList[weightList.length - 1];
         document.getElementById('weightInput').value = latestW.weight;
@@ -3657,6 +3834,12 @@
       const pill = document.getElementById('bpStatusPill');
       const timeDisplay = document.getElementById('bpTimeDisplay');
       const historyEl = document.getElementById('bpHistoryList');
+      const bpToggleLabel = document.getElementById('bpHistoryToggleLabel');
+      if (bpToggleLabel) {
+        bpToggleLabel.textContent = list.length > 0
+          ? `📋 測定履歴 & 過去7日間の推移グラフ (${list.length}回記録済)`
+          : '📋 測定履歴 & 過去7日間の推移グラフ (詳細)';
+      }
 
       if (!list || list.length === 0) {
         document.getElementById('bpSysDisplay').textContent = '--';
@@ -4280,15 +4463,10 @@
         else timingSelect.value = '晩 (就寝前)';
       }
 
-      // 自動保存
-      if (w) {
-        saveWeightFromModal(false);
-      }
-
       resultBadge.style.display = 'block';
       resultBadge.innerHTML = `
-        <strong>✅ 記録完了: 体重 ${w || '--'} kg ${f ? '(体脂肪率: ' + f + '%)' : ''}</strong><br>
-        <span style="font-size:0.75rem; color:#15803d;">自動でカルテに追加保存されました！1日に何回でも測定できます。</span><br>
+        <strong>📷 体重計の読み取り完了: 体重 ${w || '--'} kg ${f ? '(体脂肪率: ' + f + '%)' : ''}</strong><br>
+        <span style="font-size:0.75rem; color:#059669; font-weight:bold;">👇 数値を確認・微調整の上、下の「この測定値をカルテに追加」を押して登録してください。</span><br>
         <span style="font-size:0.75rem; color:#4b5563;">👩‍🏫 「${res.comment || '体重の記録ありがとうございます！'}」</span>
         ${isDemo ? '<div style="margin-top:4px; font-size:0.7rem; color:#b45309;">※デモ読み取りです。</div>' : ''}
       `;
@@ -4478,15 +4656,10 @@
         timingSelect.value = getTimingFromTime(timeVal);
       }
 
-      // 自動保存
-      if (sys || dia) {
-        saveBpRecord(false);
-      }
-
       resultBadge.style.display = 'block';
       resultBadge.innerHTML = `
-        <strong>✅ 記録完了: 最高 ${sys || '--'} / 最低 ${dia || '--'} mmHg (脈拍: ${pulse || '--'})</strong><br>
-        <span style="font-size:0.75rem; color:#15803d;">自動でカルテに追加保存されました！1日に何回でも測定できます。</span><br>
+        <strong>📷 血圧計の読み取り完了: 最高 ${sys || '--'} / 最低 ${dia || '--'} mmHg (脈拍: ${pulse || '--'})</strong><br>
+        <span style="font-size:0.75rem; color:#059669; font-weight:bold;">👇 数値を確認・微調整の上、下の「この測定値をカルテに追加」を押して登録してください。</span><br>
         <span style="font-size:0.75rem; color:#4b5563;">👩‍⚕️ 「${res.comment || '血圧の記録ありがとうございます！'}」</span>
         ${isDemo ? '<div style="margin-top:4px; font-size:0.7rem; color:#b45309;">※デモ読み取りです。</div>' : ''}
       `;
@@ -4976,53 +5149,34 @@
       document.getElementById('foodFat').value = f;
       document.getElementById('foodCarb').value = c;
 
-      // 自動保存（写真を選んだ時点で即座にカルテに追加！）
-      const key = getDateKey(currentDate);
-      const uid = currentUserId;
-      const storageKey = `asuken_${uid}_meals_${key}_${currentMealType}`;
-      const items = JSON.parse(localStorage.getItem(storageKey) || '[]');
-      
+      if (result.items && Array.isArray(result.items) && result.items.length > 1) {
+        window.pendingMealItems = result.items;
+      } else {
+        window.pendingMealItems = null;
+      }
+
       let breakdownHtml = '';
       if (result.items && Array.isArray(result.items) && result.items.length > 1) {
-        // 複数品目の場合：各料理を個別アイテムとして登録して「何が何カロリー」か分かるようにする
-        result.items.forEach(it => {
-          const itemCal = parseFloat(it.cal) || 0;
-          items.push({
-            name: it.name || '料理',
-            cal: itemCal,
-            protein: parseFloat(it.protein) || 0,
-            fat: parseFloat(it.fat) || 0,
-            carb: parseFloat(it.carb) || 0
-          });
-        });
         breakdownHtml = `
-          <div style="margin-top:8px; padding:8px 10px; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; font-size:0.75rem; color:#166534; text-align:left;">
+          <div style="margin-top:6px; padding:6px 10px; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:6px; font-size:0.75rem; color:#166534; text-align:left;">
             <strong>📋 1品ごとのカロリー内訳:</strong>
-            <div style="margin-top:4px; display:flex; flex-direction:column; gap:2px;">
-              ${result.items.map(it => `<div>・${it.name}: <strong>${it.cal} kcal</strong></div>`).join('')}
+            <div style="margin-top:3px; display:flex; flex-direction:column; gap:2px;">
+              ${result.items.map(it => `<div>・${it.name}: <strong>${it.cal} kcal</strong> (P:${it.protein}g F:${it.fat}g C:${it.carb}g)</div>`).join('')}
             </div>
           </div>
         `;
-      } else {
-        const newMeal = { name: mealName, cal, protein: p, fat: f, carb: c };
-        if (currentEditingMealIndex !== null && currentEditingMealIndex < items.length) {
-          items[currentEditingMealIndex] = newMeal;
-        } else {
-          items.push(newMeal);
-          currentEditingMealIndex = items.length - 1;
-        }
       }
-      syncSetItem(storageKey, JSON.stringify(items));
-      renderDayData();
 
-      const typeNames = { breakfast: '朝食', lunch: '昼食', dinner: '夕食', snack: '間食・夜食' };
       resultBadge.style.display = 'block';
       resultBadge.innerHTML = `
-        <strong>✅ 記録完了: ${mealName} (合計 ${cal} kcal)</strong><br>
-        <span style="font-size:0.75rem; color:#15803d;">自動で${typeNames[currentMealType] || 'カルテ'}に登録されました！</span>
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <strong>📸 写真のAI解析完了: 約 ${cal} kcal</strong>
+          <span style="font-size:0.7rem; background:#dcfce7; color:#15803d; padding:2px 6px; border-radius:4px; font-weight:bold;">PFC自動入力済</span>
+        </div>
         ${breakdownHtml}
-        <div style="margin-top:6px; font-size:0.75rem; color:#4b5563;">👩‍🏫 「${result.comment || 'バランスの良い食事です！'}」</div>
-        ${isDemo ? '<div style="margin-top:4px; font-size:0.7rem; color:#b45309;">※デモ判定です。</div>' : ''}
+        <div style="margin-top:5px; font-size:0.75rem; color:#4b5563;">👩‍🏫 「${result.comment || 'バランスの良い食事です！'}」</div>
+        <div style="margin-top:6px; font-size:0.73rem; color:#059669; font-weight:bold;">👇 内容を確認の上、下の「記録する」を押してカルテに追加してください。</div>
+        ${isDemo ? '<div style="margin-top:3px; font-size:0.7rem; color:#b45309;">※デモ判定による概算値です。</div>' : ''}
       `;
     }
 
