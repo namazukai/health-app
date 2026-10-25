@@ -2382,7 +2382,31 @@
     function reloadFamilyMembers() {
       try {
         const saved = localStorage.getItem('asuken_family_members');
-        rawFamily = saved ? JSON.parse(saved) : DEFAULT_FAMILY;
+        if (saved) {
+          rawFamily = JSON.parse(saved);
+        } else {
+          // 過去に「夫」「妻」で記録した既存データが端末にあるか自動判定して引き継ぎ
+          let hasLegacyHusbandData = false;
+          try {
+            for (let i = 0; i < localStorage.length; i++) {
+              const k = localStorage.key(i);
+              if (k && (k.startsWith('asuken_husband_') || k.startsWith('asuken_wife_'))) {
+                hasLegacyHusbandData = true;
+                break;
+              }
+            }
+          } catch (e) {}
+
+          if (hasLegacyHusbandData) {
+            rawFamily = [
+              { id: 'husband', name: '夫 (あなた)', icon: '👨', gender: 'male', age: 40, height: 172.0, activity: 1.75, targetWeight: 65.0, targetCal: 2100 },
+              { id: 'wife', name: '妻 (奥さん)', icon: '👩', gender: 'female', age: 38, height: 158.0, activity: 1.5, targetWeight: 52.0, targetCal: 1700 }
+            ];
+          } else {
+            rawFamily = DEFAULT_FAMILY;
+          }
+        }
+
         familyMembers = rawFamily.map(m => ({
           gender: m.gender || (m.id === 'wife' ? 'female' : 'male'),
           age: m.age || (m.gender === 'female' ? 55 : 60),
@@ -2390,6 +2414,14 @@
           activity: m.activity || 1.5,
           ...m
         }));
+
+        // currentUserIdが現在のfamilyMembersに存在するか確認・自動選択
+        const storedUid = localStorage.getItem('asuken_current_user_id');
+        if (storedUid && familyMembers.some(m => m.id === storedUid)) {
+          currentUserId = storedUid;
+        } else if (!familyMembers.some(m => m.id === currentUserId)) {
+          currentUserId = familyMembers[0] ? familyMembers[0].id : 'me';
+        }
       } catch (e) {
         console.warn('reloadFamilyMembers error:', e);
       }
